@@ -34,7 +34,7 @@ const DEFAULT_STORIES = [
     verse: "Isaiah 9:6", translationClassic: "For to us a child is born, to us a son is given; and the government shall be upon his shoulder. (Isaiah 9:6 ESV)",
     translationKids: "A child will be born to us. God will give a son to us. (Isaiah 9:6 ICB)",
     xPercent: 18, yPercent: 75, stars: 3, era: "Gospels (Ep 8)", mapIcon: "child_care",
-    youtubeId: "8m9gSjV6o2Y", durationSeconds: 150,
+    youtubeId: "1fl9laM4ViM", durationSeconds: 150,
     checkpoints: [
       { id: "cp-xm-1", timeSeconds: 25, title: "Bethlehem Stable", verseSnippet: "She wrapped him in cloths and placed him in a manger. (Luke 2:7)", question: { prompt: "Where was baby Jesus laid when He was born?", options: ["In a wooden manger in Bethlehem", "On a velvet throne", "In a fast chariot", "In a glass house"], correctAnswer: "In a wooden manger in Bethlehem", explanation: "Jesus was born in Bethlehem and laid humbly in a manger!" } },
       { id: "cp-xm-2", timeSeconds: 65, title: "The Star of Bethlehem", verseSnippet: "We saw his star when it rose and have come to worship him. (Matthew 2:2)", question: { prompt: "What guided the Wise Men to find the baby king?", options: ["A bright glowing Star in the east", "A paper map", "A lighthouse", "A golden bird"], correctAnswer: "A bright glowing Star in the east", explanation: "God placed a magnificent star in the sky to guide the Magi!" } }
@@ -50,7 +50,7 @@ const DEFAULT_STORIES = [
     verse: "Mark 4:41", translationClassic: "And they said to one another, 'Who then is this, that even wind and sea obey him?' (Mark 4:41 ESV)",
     translationKids: "They said to each other, 'Even the wind and the waves obey him!' (Mark 4:41 ICB)",
     xPercent: 32, yPercent: 45, stars: 2, era: "Gospels (Ep 9)", mapIcon: "water",
-    youtubeId: "l54IvPzqXJM", durationSeconds: 180,
+    youtubeId: "EQXyhM592RU", durationSeconds: 180,
     checkpoints: [
       { id: "cp-m-1", timeSeconds: 30, title: "Calming the Storm", verseSnippet: "He got up, rebuked the wind and said, 'Quiet! Be still!' (Mark 4:39)", question: { prompt: "What words did Jesus speak to stop the storm?", options: ["Quiet! Be still!", "Rain come back later!", "Blow harder!", "Fly away!"], correctAnswer: "Quiet! Be still!", explanation: "Jesus commanded the wind and sea, and immediate calm followed!" } },
       { id: "cp-m-2", timeSeconds: 85, title: "Feeding the 5,000", verseSnippet: "Taking the five loaves and the two fish and looking up to heaven, he gave thanks. (Luke 9:16)", question: { prompt: "How many loaves and fish fed five thousand people?", options: ["5 loaves and 2 fish", "100 apples", "1 loaf of bread", "20 grapes"], correctAnswer: "5 loaves and 2 fish", explanation: "Jesus blessed a boy's small lunch to feed thousands!" } }
@@ -81,7 +81,7 @@ const DEFAULT_STORIES = [
     verse: "Matthew 28:6", translationClassic: "He is not here, for he has risen, as he said. Come, see the place where he lay. (Matthew 28:6 ESV)",
     translationKids: "Jesus is not here! He has risen from death, just as he promised! (Matthew 28:6 ICB)",
     xPercent: 68, yPercent: 35, stars: 1, era: "Gospels (Ep 11)", mapIcon: "wb_sunny",
-    youtubeId: "J2Xod4D5UwQ", durationSeconds: 190,
+    youtubeId: "3F0rt2AiqJY", durationSeconds: 190,
     checkpoints: [
       { id: "cp-hr-1", timeSeconds: 40, title: "The Rolled Stone", verseSnippet: "He is not here; he has risen! (Luke 24:6)", question: { prompt: "What did Mary find when she arrived at the tomb?", options: ["The heavy stone was rolled away!", "The entrance was bricked shut", "A iron gate", "A sleeping lion"], correctAnswer: "The heavy stone was rolled away!", explanation: "God's power rolled away the massive stone!" } }
     ]
@@ -96,7 +96,7 @@ const DEFAULT_STORIES = [
     verse: "Psalm 28:7", translationClassic: "The LORD is my strength and my shield; in him my heart trusts. (Psalm 28:7 ESV)",
     translationKids: "The Lord gives me strength and protects me like a shield. (Psalm 28:7 ICB)",
     xPercent: 82, yPercent: 60, stars: 0, era: "Old Testament", mapIcon: "shield",
-    youtubeId: "RG9_g772vK0", durationSeconds: 160,
+    youtubeId: "32_Izk21ktw", durationSeconds: 160,
     checkpoints: [
       { id: "cp-d-1", timeSeconds: 30, title: "Five Smooth Stones", verseSnippet: "David said to the Philistine, 'You come against me with sword and spear, but I come against you in the name of the Lord.' (1 Samuel 17:45)", question: { prompt: "What weapon did David trust God with?", options: ["A sling and 5 smooth stones", "A heavy iron sword", "A golden spear", "A wooden bow"], correctAnswer: "A sling and 5 smooth stones", explanation: "David defeated Goliath with faith in God!" } }
     ]

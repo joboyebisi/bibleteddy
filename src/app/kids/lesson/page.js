@@ -63,6 +63,9 @@ function LessonContent() {
 
   // Verse translation toggle
   const [verseMode, setVerseMode] = useState("kids"); // "kids" or "classic"
+  const [liveVerseKids, setLiveVerseKids] = useState("");
+  const [liveVerseClassic, setLiveVerseClassic] = useState("");
+  const [verseApiSource, setVerseApiSource] = useState("");
 
   useEffect(() => {
     const found = stories.find((s) => s.id === storyId)
@@ -75,6 +78,33 @@ function LessonContent() {
       setCompletedCheckpoints([]);
     }
   }, [storyId, isCuratedParam, stories, curatedVideos]);
+
+  // Live scripture from YouVersion Platform API
+  useEffect(() => {
+    const ref = activeVideo?.verse;
+    if (!ref) return;
+
+    const load = async () => {
+      try {
+        const [icbRes, esvRes] = await Promise.all([
+          fetch(`/api/youversion/verse?reference=${encodeURIComponent(ref)}&translation=ICB`),
+          fetch(`/api/youversion/verse?reference=${encodeURIComponent(ref)}&translation=ESV`),
+        ]);
+        if (icbRes.ok) {
+          const data = await icbRes.json();
+          if (data.text) {
+            setLiveVerseKids(data.text);
+            if (data.source === "youversion") setVerseApiSource("youversion");
+          }
+        }
+        if (esvRes.ok) {
+          const data = await esvRes.json();
+          if (data.text) setLiveVerseClassic(data.text);
+        }
+      } catch { /* use static copy */ }
+    };
+    load();
+  }, [activeVideo?.verse]);
 
   // Simulate video time advancement & checkpoint triggers
   useEffect(() => {
@@ -193,7 +223,7 @@ function LessonContent() {
       const res = await fetch("/api/curate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ youtubeUrl: customUrl || "https://www.youtube.com/watch?v=8m9gSjV6o2Y", topic: customTopic || "Bible Story" })
+        body: JSON.stringify({ youtubeUrl: customUrl || "https://www.youtube.com/watch?v=1fl9laM4ViM", topic: customTopic || "Bible Story" })
       });
       const data = await res.json();
       if (data.story) {
@@ -270,9 +300,9 @@ function LessonContent() {
             {/* Real YouTube Embed */}
             <iframe
               key={activeVideo.youtubeId}
-              src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?rel=0&modestbranding=1&playsinline=1`}
+              src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
               title={activeVideo.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="absolute inset-0 w-full h-full"
               style={{ border: "none" }}
@@ -368,6 +398,9 @@ function LessonContent() {
           </div>
 
           {/* ── PLAYBACK CONTROLS ── */}
+          <p className="text-xs font-bold text-center px-2" style={{ color: C.textMid }}>
+            Tap <strong>Play</strong> below to run the quest timer — the video plays above and checkpoints pop up automatically!
+          </p>
           <div className="rounded-2xl p-5 border select-none"
             style={{ background: "white", borderColor: C.border, boxShadow: "0 10px 30px -10px rgba(112,93,0,0.10)" }}>
 
@@ -525,13 +558,15 @@ function LessonContent() {
                 </p>
                 <p className="text-sm italic font-bold leading-relaxed" style={{ color: C.brownMid }}>
                   "{verseMode === "kids"
-                    ? (activeVideo.translationKids || activeVideo.translationClassic || "God is with you wherever you go.")
-                    : (activeVideo.translationClassic || activeVideo.translationKids || "The Lord is my shepherd; I shall not want.")
+                    ? (liveVerseKids || activeVideo.translationKids || activeVideo.translationClassic || "God is with you wherever you go.")
+                    : (liveVerseClassic || activeVideo.translationClassic || activeVideo.translationKids || "The Lord is my shepherd; I shall not want.")
                   }"
                 </p>
                 <p className="text-[9px] font-black mt-2 flex items-center gap-1" style={{ color: C.goldDeep }}>
                   <span className="material-symbols-outlined text-[10px]">link</span>
-                  YouVersion Platform API
+                  {verseApiSource === "youversion"
+                    ? "YouVersion Platform API (live ICB / ESV)"
+                    : "YouVersion Platform API"}
                 </p>
               </div>
             </div>

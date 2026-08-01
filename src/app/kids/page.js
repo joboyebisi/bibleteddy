@@ -70,7 +70,8 @@ export default function KidsAdventurePage() {
   // Voice & Trivia Arena Tab
   const [activeQuizMode, setActiveQuizMode] = useState("voice");
   const [selectedVerse, setSelectedVerse] = useState(MEMORY_VERSES[0]);
-  const [liveVerseText, setLiveVerseText] = useState(""); // Live from YouVersion API
+  const [liveVerseText, setLiveVerseText] = useState("");
+  const [liveVerseSource, setLiveVerseSource] = useState("");
 
   // Voice state
   const [isListeningMic, setIsListeningMic] = useState(false);
@@ -92,7 +93,10 @@ export default function KidsAdventurePage() {
         const res = await fetch(`/api/youversion/verse?reference=${encodeURIComponent(selectedVerse.reference)}&translation=${selectedVerse.translation}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.text) setLiveVerseText(data.text);
+          if (data.text) {
+            setLiveVerseText(data.text);
+            setLiveVerseSource(data.source || "");
+          }
         }
       } catch { /* use static fallback */ }
     };
@@ -123,7 +127,14 @@ export default function KidsAdventurePage() {
         });
         const result = await res.json();
         setVerifyingVoice(false);
-        setVoiceResult({ accuracyPercent: result.accuracyPercent, passed: result.passed, bonusSparkles: result.passed ? 50 : 0, teddyFeedback: result.teddyFeedback || (result.passed ? "Amazing!" : "Keep trying!") });
+        setVoiceResult({
+          accuracyPercent: result.accuracyPercent,
+          passed: result.passed,
+          bonusSparkles: result.passed ? 50 : 0,
+          teddyFeedback: result.teddyFeedback || (result.passed ? "Amazing!" : "Keep trying!"),
+          aiSource: result.source,
+          aiModel: result.model,
+        });
         if (result.passed) { playSuccess(); addSeeds(20); logVerseCompletion?.(selectedVerse.reference, selectedVerse.translation, result.accuracyPercent, true, 20); }
         else playSquish();
       } catch {
@@ -197,8 +208,14 @@ export default function KidsAdventurePage() {
           {verseOfDay?.text && (
             <div className="mt-3 p-3 rounded-xl border text-sm font-medium max-w-xl"
               style={{ background: "rgba(255,255,255,0.85)", borderColor: "rgba(255,102,0,0.3)", color: "#544600" }}>
-              <span className="font-black text-[#ff6600]">YouVersion Verse of the Day — {verseOfDay.reference}</span>
+              <span className="font-black text-[#ff6600]">
+                YouVersion Verse of the Day — {verseOfDay.reference}
+                {verseOfDay.translation ? ` (${verseOfDay.translation})` : ""}
+              </span>
               <p className="mt-1 italic">&ldquo;{verseOfDay.text}&rdquo;</p>
+              {verseOfDay.source === "youversion" && (
+                <p className="text-[10px] font-bold mt-1 text-[#0c6780]">Live from YouVersion Platform API</p>
+              )}
             </div>
           )}
           <div className="flex gap-2 flex-wrap mt-3">
@@ -504,8 +521,14 @@ export default function KidsAdventurePage() {
               <div className="rounded-2xl p-6 text-center space-y-2 border-2 relative"
                 style={{ background: "#fffde7", borderColor: "#e9c400" }}>
                 <div className="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full border"
-                   style={{ background: liveVerseText ? "#0c6780" : "#ffe16d", color: liveVerseText ? "white" : "#544600", borderColor: liveVerseText ? "#0c6780" : "#e9c400" }}>
-                   {liveVerseText ? "✓ YouVersion API (Live)" : "YouVersion API"}
+                   style={{
+                     background: liveVerseSource === "youversion" ? "#0c6780" : "#ffe16d",
+                     color: liveVerseSource === "youversion" ? "white" : "#544600",
+                     borderColor: liveVerseSource === "youversion" ? "#0c6780" : "#e9c400",
+                   }}>
+                   {liveVerseSource === "youversion"
+                     ? `✓ YouVersion API (${selectedVerse.translation})`
+                     : "YouVersion API"}
                 </div>
                 <h3 className="text-xl font-black" style={{ color: "#3d3300" }}>{selectedVerse.reference}</h3>
                 <p className="text-lg italic font-bold leading-relaxed max-w-xl mx-auto" style={{ color: "#544600" }}>
@@ -571,6 +594,11 @@ export default function KidsAdventurePage() {
                       style={{ background: "#fffde7", borderColor: "#e9c400", color: "#544600" }}>
                       🧸 Bible Teddy says: "{voiceResult.teddyFeedback}"
                     </p>
+                    {voiceResult.aiSource === "gloo" && (
+                      <p className="text-[10px] font-black" style={{ color: "#0c6780" }}>
+                        Scored by Gloo AI ({voiceResult.aiModel || "Google Gemma"})
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

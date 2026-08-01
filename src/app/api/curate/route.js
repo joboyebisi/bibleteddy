@@ -170,19 +170,19 @@ function extractYouTubeId(url) {
 function getStaticMatch(youtubeId, url, topic) {
   const urlLower = `${url} ${topic}`.toLowerCase();
 
-  if (youtubeId === "8m9gSjV6o2Y" || urlLower.includes("christmas")) {
+  if (youtubeId === "8m9gSjV6o2Y" || youtubeId === "1fl9laM4ViM" || urlLower.includes("christmas")) {
     return { storyTitle: "Superbook: The First Christmas", topic: "Birth of Jesus", verse: "Isaiah 9:6" };
   }
-  if (youtubeId === "l54IvPzqXJM" || urlLower.includes("miracles")) {
+  if (youtubeId === "l54IvPzqXJM" || youtubeId === "EQXyhM592RU" || urlLower.includes("miracles")) {
     return { storyTitle: "Superbook: Miracles of Jesus", topic: "Jesus calms the storm and feeds 5000", verse: "Mark 4:41" };
   }
   if (youtubeId === "0o8NQBuneJM" || urlLower.includes("supper")) {
     return { storyTitle: "Superbook: The Last Supper", topic: "Jesus washes feet and institutes communion", verse: "Luke 22:19" };
   }
-  if (youtubeId === "J2Xod4D5UwQ" || urlLower.includes("risen")) {
+  if (youtubeId === "J2Xod4D5UwQ" || youtubeId === "3F0rt2AiqJY" || urlLower.includes("risen")) {
     return { storyTitle: "Superbook: He Is Risen!", topic: "Resurrection of Jesus Christ", verse: "Matthew 28:6" };
   }
-  if (youtubeId === "RG9_g772vK0" || urlLower.includes("david") || urlLower.includes("goliath")) {
+  if (youtubeId === "RG9_g772vK0" || youtubeId === "32_Izk21ktw" || urlLower.includes("david") || urlLower.includes("goliath")) {
     return { storyTitle: "Superbook: David and Goliath", topic: "David defeats Goliath with faith", verse: "Psalm 28:7" };
   }
   if (urlLower.includes("creation") || urlLower.includes("beginning")) {

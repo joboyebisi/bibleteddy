@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
+import { glooChatCompletion, isGlooConfigured } from "@/lib/gloo/client";
 
 /**
  * POST /api/gloo/quiz
- * Uses Gloo AI Studio to generate theologically grounded, child-safe quiz questions
- * from a video topic or transcript. Falls back to Gemini if Gloo is unavailable.
- * 
- * Body: { topic: string, verseRef?: string, storyTitle?: string, ageGroup?: "little"|"kids"|"teens" }
+ * Gloo AI Studio (faith-grounded) quiz generation; Gemini fallback.
  */
 export async function POST(request) {
   const { topic, verseRef, storyTitle, ageGroup = "kids", videoSummary } = await request.json();
@@ -14,53 +12,31 @@ export async function POST(request) {
     return NextResponse.json({ error: "topic or storyTitle required" }, { status: 400 });
   }
 
-  const glooKey = process.env.GLOO_API_KEY;
   const geminiKey = process.env.GEMINI_API_KEY;
+  const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
 
-  // --- Attempt Gloo AI Studio first ---
-  if (glooKey) {
+  if (isGlooConfigured()) {
     try {
-      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
-      
-      const res = await fetch(`${process.env.GLOO_API_BASE || "https://api.studio.gloo.us/v1"}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${glooKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gloo-faith-tuned-v1",  // Gloo faith-tuned model
-          messages: [
-            {
-              role: "system",
-              content: "You are a children's Christian education expert. All responses must be theologically sound, age-appropriate, and grounded in Scripture. Always respond with valid JSON only."
-            },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 1024,
-          response_format: { type: "json_object" }
-        })
+      const { content, model } = await glooChatCompletion({
+        model_family: "google",
+        temperature: 0.7,
+        max_tokens: 1024,
+        system:
+          "You are a children's Christian education expert. All responses must be theologically sound, age-appropriate, and grounded in Scripture. Always respond with valid JSON only.",
+        messages: [{ role: "user", content: prompt }],
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const content = data.choices?.[0]?.message?.content;
-        if (content) {
-          const quiz = JSON.parse(content);
-          return NextResponse.json({ ...quiz, source: "gloo" });
-        }
+      if (content) {
+        const quiz = JSON.parse(content);
+        return NextResponse.json({ ...quiz, source: "gloo", model: model || "google (via Gloo)" });
       }
     } catch (err) {
       console.warn("Gloo AI error, falling back to Gemini:", err.message);
     }
   }
 
-  // --- Fallback: Gemini API ---
   if (geminiKey) {
     try {
-      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
-      
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
         {
@@ -68,8 +44,8 @@ export async function POST(request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: "application/json" }
-          })
+            generationConfig: { responseMimeType: "application/json" },
+          }),
         }
       );
 
@@ -78,7 +54,7 @@ export async function POST(request) {
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
           const quiz = JSON.parse(text.trim());
-          return NextResponse.json({ ...quiz, source: "gemini" });
+          return NextResponse.json({ ...quiz, source: "gemini", model: "gemini-2.5-flash" });
         }
       }
     } catch (err) {
@@ -86,16 +62,16 @@ export async function POST(request) {
     }
   }
 
-  // --- Static fallback ---
   return NextResponse.json(getStaticFallback(topic || storyTitle));
 }
 
 function buildQuizPrompt(topic, verseRef, ageGroup, videoSummary) {
-  const ageInstruction = ageGroup === "little"
-    ? "very simple language for ages 3-5, one syllable answers"
-    : ageGroup === "teens"
-    ? "deeper theological concepts for ages 11-14"
-    : "fun, engaging language for ages 6-10";
+  const ageInstruction =
+    ageGroup === "little"
+      ? "very simple language for ages 3-5, one syllable answers"
+      : ageGroup === "teens"
+        ? "deeper theological concepts for ages 11-14"
+        : "fun, engaging language for ages 6-10";
 
   const summaryBlock = videoSummary
     ? `\nVideo content summary: "${videoSummary}"\nBase questions on specific events from this video.`
@@ -159,10 +135,16 @@ function getStaticFallback(topic) {
         verseSnippet: "For God so loved the world... (John 3:16)",
         question: {
           prompt: `What is the main lesson in the story about ${topic}?`,
-          options: ["Trusting God in tough times", "Running away from problems", "Building a big house", "Eating lots of food"],
+          options: [
+            "Trusting God in tough times",
+            "Running away from problems",
+            "Building a big house",
+            "Eating lots of food",
+          ],
           correctAnswer: "Trusting God in tough times",
-          explanation: "God wants us to trust Him in every situation, just like the heroes in His Word!"
-        }
+          explanation:
+            "God wants us to trust Him in every situation, just like the heroes in His Word!",
+        },
       },
       {
         id: "cp-static-2",
@@ -171,10 +153,16 @@ function getStaticFallback(topic) {
         verseSnippet: "I can do all things through Christ who strengthens me. (Philippians 4:13)",
         question: {
           prompt: "Who gives us strength when things are hard?",
-          options: ["Jesus Christ gives us strength!", "Our toys and games", "A magic potion", "Sleeping all day"],
+          options: [
+            "Jesus Christ gives us strength!",
+            "Our toys and games",
+            "A magic potion",
+            "Sleeping all day",
+          ],
           correctAnswer: "Jesus Christ gives us strength!",
-          explanation: "Philippians 4:13 says we can do ALL things through Christ who gives us strength!"
-        }
+          explanation:
+            "Philippians 4:13 says we can do ALL things through Christ who gives us strength!",
+        },
       },
       {
         id: "cp-static-3",
@@ -183,11 +171,17 @@ function getStaticFallback(topic) {
         verseSnippet: "The Lord is my shepherd, I shall not want. (Psalm 23:1)",
         question: {
           prompt: "How can we show God's love to others today?",
-          options: ["Being kind and sharing with friends", "Keeping all toys to ourselves", "Ignoring people who need help", "Only helping ourselves"],
+          options: [
+            "Being kind and sharing with friends",
+            "Keeping all toys to ourselves",
+            "Ignoring people who need help",
+            "Only helping ourselves",
+          ],
           correctAnswer: "Being kind and sharing with friends",
-          explanation: "Jesus said the greatest commandment is to love God and love others as ourselves!"
-        }
-      }
-    ]
+          explanation:
+            "Jesus said the greatest commandment is to love God and love others as ourselves!",
+        },
+      },
+    ],
   };
 }
