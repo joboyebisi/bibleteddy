@@ -32,7 +32,7 @@ export default function LandingPage() {
     const correct = num1 * num2;
     if (parseInt(gateAnswer) === correct) {
       setShowGate(false);
-      router.push(parent ? "/parent" : "/onboarding/signup");
+      router.push(parent ? "/parent" : "/onboarding/login");
     } else {
       setGateError(true);
       setTimeout(() => setGateError(false), 1500);
@@ -76,7 +76,7 @@ export default function LandingPage() {
             <span className="material-symbols-outlined text-md">lock</span> Parent Gate
           </button>
           
-          <Link href={parent ? "/parent" : "/onboarding/signup"}>
+          <Link href={parent ? "/parent" : "/onboarding/login"}>
             <span className="material-symbols-outlined text-primary text-3xl cursor-pointer hover:scale-110 transition-transform" style={{ fontVariationSettings: "'FILL' 1" }}>
               account_circle
             </span>

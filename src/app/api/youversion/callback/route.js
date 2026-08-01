@@ -9,22 +9,29 @@ import { getYouVersionConfig } from "@/lib/youversion/config";
  */
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
-  const { appKey, redirectUri, authBase } = getYouVersionConfig();
-
-  const error = searchParams.get("error");
-  if (error) {
-    return NextResponse.redirect(
-      `${origin}/onboarding/signup?error=${encodeURIComponent(error)}`
-    );
-  }
 
   const cookieStore = await cookies();
   const storedState = cookieStore.get("yv_oauth_state")?.value;
   const codeVerifier = cookieStore.get("yv_code_verifier")?.value;
+  const storedRedirectUri = cookieStore.get("yv_redirect_uri")?.value;
   const next = cookieStore.get("yv_oauth_next")?.value || "/parent";
 
+  const { appKey, redirectUri: configRedirectUri, authBase } = getYouVersionConfig({ origin });
+  const redirectUri = storedRedirectUri || configRedirectUri;
+
+  const error = searchParams.get("error");
+  if (error) {
+    const hint =
+      error === "invalid_request"
+        ? ` Register this callback at platform.youversion.com: ${redirectUri}`
+        : "";
+    return NextResponse.redirect(
+      `${origin}/onboarding/signup?error=${encodeURIComponent(error)}&hint=${encodeURIComponent(hint)}`
+    );
+  }
+
   // Clear OAuth cookies
-  ["yv_code_verifier", "yv_oauth_state", "yv_oauth_nonce", "yv_oauth_next"].forEach((name) => {
+  ["yv_code_verifier", "yv_oauth_state", "yv_oauth_nonce", "yv_oauth_next", "yv_redirect_uri"].forEach((name) => {
     cookieStore.delete(name);
   });
 

@@ -159,7 +159,7 @@ export const AppProvider = ({ children }) => {
     if (supabase) {
       const { data: profile } = await supabase
         .from("parent_profiles")
-        .select("display_name, youversion_user_id, email")
+        .select("display_name, youversion_user_id, email, is_admin")
         .eq("id", authUser.id)
         .single();
 
@@ -170,6 +170,7 @@ export const AppProvider = ({ children }) => {
           displayName: profile.display_name || parentProfile.displayName,
           youversionLinked: !!profile.youversion_user_id,
           youversionUserId: profile.youversion_user_id,
+          isAdmin: !!profile.is_admin,
         };
       }
     }

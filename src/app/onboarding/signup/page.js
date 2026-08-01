@@ -19,8 +19,17 @@ export default function ParentSignUpPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get("error");
+    const hint = params.get("hint");
+    if (params.get("mode") === "login") {
+      setIsSignInMode(true);
+    }
     if (oauthError) {
-      setErrorMsg(`Sign-in failed: ${oauthError.replace(/_/g, " ")}`);
+      let msg = `Sign-in failed: ${oauthError.replace(/_/g, " ")}`;
+      if (oauthError.includes("redirect") || hint) {
+        msg += `. Register this callback at platform.youversion.com: https://bibleteddy.vercel.app/api/youversion/callback`;
+      }
+      if (hint) msg += hint;
+      setErrorMsg(msg);
     }
   }, []);
 
@@ -194,7 +203,7 @@ export default function ParentSignUpPage() {
                 </p>
               </div>
 
-              {/* YouVersion Social Login */}
+              {/* YouVersion — optional; link after email signup works too */}
               <button
                 id="youversion-signin-btn"
                 onClick={handleYouVersionSignIn}
@@ -205,9 +214,12 @@ export default function ParentSignUpPage() {
                   menu_book
                 </span>
                 <span className="font-headline-md font-bold">
-                  {isSignInMode ? "Sign in with YouVersion" : "Continue with YouVersion"}
+                  {isSignInMode ? "Sign in with YouVersion" : "Link YouVersion account"}
                 </span>
               </button>
+              <p className="text-center text-xs text-tertiary font-medium -mt-sm">
+                Or use email below to {isSignInMode ? "log in" : "create an account"} — YouVersion is optional.
+              </p>
 
               {/* Google Social Login */}
               <button
@@ -319,7 +331,10 @@ export default function ParentSignUpPage() {
               <p className="text-center font-body-md text-body-md text-tertiary font-medium">
                 {isSignInMode ? "Don't have an account? " : "Already have an account? "}
                 <button
-                  onClick={() => setIsSignInMode(!isSignInMode)}
+                  onClick={() => {
+                    setIsSignInMode(!isSignInMode);
+                    setErrorMsg("");
+                  }}
                   className="text-primary font-bold hover:underline cursor-pointer bg-transparent border-none"
                 >
                   {isSignInMode ? "Sign Up" : "Sign In"}

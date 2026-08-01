@@ -8,7 +8,8 @@ import { getYouVersionConfig } from "@/lib/youversion/config";
  * Starts YouVersion OAuth PKCE flow — redirects to login.youversion.com
  */
 export async function GET(request) {
-  const { appKey, redirectUri, authBase, scopes } = getYouVersionConfig();
+  const { origin } = new URL(request.url);
+  const { appKey, redirectUri, authBase, scopes } = getYouVersionConfig({ origin });
 
   if (!appKey) {
     return NextResponse.json(
@@ -38,6 +39,7 @@ export async function GET(request) {
   cookieStore.set("yv_oauth_state", state, cookieOpts);
   cookieStore.set("yv_oauth_nonce", nonce, cookieOpts);
   cookieStore.set("yv_oauth_next", next, cookieOpts);
+  cookieStore.set("yv_redirect_uri", redirectUri, cookieOpts);
 
   const params = new URLSearchParams({
     response_type: "code",

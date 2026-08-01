@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS parent_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
   display_name TEXT,
-  youversion_user_id TEXT,        -- Optional YouVersion linked account
+  is_admin BOOLEAN DEFAULT false,
+  youversion_user_id TEXT,
   youversion_access_token TEXT,  -- OAuth access token for YouVersion API
   youversion_refresh_token TEXT, -- OAuth refresh token
   created_at TIMESTAMPTZ DEFAULT NOW(),
