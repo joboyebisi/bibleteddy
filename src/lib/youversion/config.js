@@ -10,9 +10,9 @@ export function getYouVersionConfig(fallbackOrigin) {
     process.env.YOUVERSION_API_TOKEN;
 
   const siteUrl = getSiteUrl(fallbackOrigin);
-  const redirectUri =
-    process.env.YOUVERSION_REDIRECT_URI ||
-    `${siteUrl}/onboarding/youversion/callback`;
+  // Always use the page callback — must match platform.youversion.com registration.
+  // (Ignores YOUVERSION_REDIRECT_URI so a stale Vercel env cannot break OAuth.)
+  const redirectUri = `${siteUrl}/onboarding/youversion/callback`;
 
   return {
     appKey,
