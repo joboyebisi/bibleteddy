@@ -125,7 +125,6 @@ GEMINI_API_KEY=AIza...
 
 # YouVersion Platform (App Key from https://platform.youversion.com)
 YOUVERSION_APP_KEY=your_app_key_here
-YOUVERSION_REDIRECT_URI=http://localhost:3000/api/youversion/callback
 YOUVERSION_API_BASE=https://api.youversion.com/v1
 # Legacy alias
 YOUVERSION_API_TOKEN=your_app_key_here
@@ -140,7 +139,8 @@ GOOGLE_CLIENT_SECRET=
 
 # App URL
 NEXT_PUBLIC_SITE_URL=https://bibleteddy.vercel.app
-YOUVERSION_REDIRECT_URI=https://bibleteddy.vercel.app/api/youversion/callback
+# YouVersion callback (register at platform.youversion.com):
+# https://bibleteddy.vercel.app/onboarding/youversion/callback
 ```
 
 ### 3. Set Up the Database
@@ -169,8 +169,8 @@ This creates:
 ### 5. Configure YouVersion OAuth (Sign in with YouVersion)
 1. Register your app at [platform.youversion.com](https://platform.youversion.com)
 2. Set the **callback URL** in the YouVersion Platform Portal:
-   - Production: `https://bibleteddy.vercel.app/api/youversion/callback`
-   - Local dev: `http://localhost:3000/api/youversion/callback`
+   - Production: `https://bibleteddy.vercel.app/onboarding/youversion/callback`
+   - Local dev: `http://localhost:3000/onboarding/youversion/callback`
 3. Copy your **App Key** into `YOUVERSION_APP_KEY` in `.env.local`
 4. Run the updated schema in Supabase (adds `youversion_refresh_token` column if missing):
 ```sql
@@ -209,11 +209,15 @@ vercel --prod
    - Go to your Vercel project → Settings → Environment Variables
    - Add all variables from `.env.local` (without the `#` comments)
    - Set `NEXT_PUBLIC_SITE_URL` to `https://bibleteddy.vercel.app`
-   - Set `YOUVERSION_REDIRECT_URI` to `https://bibleteddy.vercel.app/api/youversion/callback`
+   - Set `YOUVERSION_APP_KEY` to your App Key from platform.youversion.com
 
-4. **Update Supabase Auth redirect URLs:**
-   - Supabase Dashboard → Authentication → URL Configuration
-   - Add `https://bibleteddy.vercel.app/api/auth/callback` to **Redirect URLs**
+4. **Update Supabase Auth (URL Configuration):**
+   - **Site URL:** `https://bibleteddy.vercel.app`
+   - **Redirect URLs** — add all of these:
+     - `https://bibleteddy.vercel.app/onboarding/auth/callback` *(primary — handles magic link tokens)*
+     - `https://bibleteddy.vercel.app/api/auth/callback` *(legacy server callback)*
+     - `https://bibleteddy.vercel.app/onboarding/child`
+     - `https://bibleteddy.vercel.app/parent`
 
 ---
 
