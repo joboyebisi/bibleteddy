@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { resolvePostLoginPath } from "@/lib/postLoginPath";
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -45,7 +46,8 @@ function AuthCallbackContent() {
             { onConflict: "id" }
           );
         }
-        router.replace(next);
+        const dest = await resolvePostLoginPath(data.user?.id, next);
+        router.replace(dest);
         return;
       }
 
@@ -78,7 +80,8 @@ function AuthCallbackContent() {
             );
           }
           window.history.replaceState({}, "", window.location.pathname + window.location.search);
-          router.replace(next);
+          const dest = await resolvePostLoginPath(data.user?.id, next);
+          router.replace(dest);
           return;
         }
       }
@@ -86,7 +89,8 @@ function AuthCallbackContent() {
       // Already has session (e.g. refreshed)
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        router.replace(next);
+        const dest = await resolvePostLoginPath(session.user?.id, next);
+        router.replace(dest);
         return;
       }
 

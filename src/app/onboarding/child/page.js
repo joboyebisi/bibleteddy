@@ -35,7 +35,7 @@ const AVATARS = [
 
 export default function ChildOnboardingPage() {
   const router = useRouter();
-  const { addChild, playSquish, parent } = useApp();
+  const { addChild, playSquish, parent, kidsProfiles, isLoading } = useApp();
 
   const [childName, setChildName] = useState("");
   const [selectedAge, setSelectedAge] = useState("4-5");
@@ -44,6 +44,13 @@ export default function ChildOnboardingPage() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const ages = ["2-3", "4-5", "6-7", "8-10"];
+
+  // Returning users who already have children skip straight to the parent dashboard
+  useEffect(() => {
+    if (!isLoading && kidsProfiles.length > 0) {
+      router.replace("/parent");
+    }
+  }, [isLoading, kidsProfiles.length, router]);
 
   // Particles background effect on mount
   useEffect(() => {

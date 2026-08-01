@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import YouTubeQuestPlayer from "@/components/YouTubeQuestPlayer";
 
 // ── Color tokens matching the Stained Glass Sparkle design system ──
 const C = {
@@ -66,6 +67,20 @@ function LessonContent() {
   const [liveVerseKids, setLiveVerseKids] = useState("");
   const [liveVerseClassic, setLiveVerseClassic] = useState("");
   const [verseApiSource, setVerseApiSource] = useState("");
+  const [videoDuration, setVideoDuration] = useState(180);
+
+  const playerApiRef = useRef(null);
+  const triggeredCheckpointsRef = useRef(new Set());
+  const activeCheckpointRef = useRef(null);
+  const completedCheckpointsRef = useRef([]);
+
+  useEffect(() => {
+    activeCheckpointRef.current = activeCheckpoint;
+  }, [activeCheckpoint]);
+
+  useEffect(() => {
+    completedCheckpointsRef.current = completedCheckpoints;
+  }, [completedCheckpoints]);
 
   useEffect(() => {
     const found = stories.find((s) => s.id === storyId)
@@ -76,6 +91,8 @@ function LessonContent() {
       setIsPlaying(false);
       setActiveCheckpoint(null);
       setCompletedCheckpoints([]);
+      triggeredCheckpointsRef.current = new Set();
+      playerApiRef.current = null;
     }
   }, [storyId, isCuratedParam, stories, curatedVideos]);
 
@@ -106,30 +123,53 @@ function LessonContent() {
     load();
   }, [activeVideo?.verse]);
 
-  // Simulate video time advancement & checkpoint triggers
-  useEffect(() => {
-    let interval;
-    if (isPlaying && !activeCheckpoint) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          const nextTime = prev + 1;
-          const checkpoints = activeVideo.checkpoints || [];
-          const hitCp = checkpoints.find(
-            (cp) => cp.timeSeconds === nextTime && !completedCheckpoints.includes(cp.id)
-          );
-          if (hitCp) {
-            setIsPlaying(false);
-            setActiveCheckpoint(hitCp);
-            playSquish();
-          }
-          const duration = activeVideo.durationSeconds || 180;
-          if (nextTime >= duration) { setIsPlaying(false); return duration; }
-          return nextTime;
-        });
-      }, 1000);
+  const handleTimeUpdate = useCallback((t) => {
+    const sec = Math.floor(t);
+    setCurrentTime(sec);
+    if (activeCheckpointRef.current) return;
+
+    const cps = activeVideo.checkpoints || [];
+    for (const cp of cps) {
+      if (completedCheckpointsRef.current.includes(cp.id)) continue;
+      if (triggeredCheckpointsRef.current.has(cp.id)) continue;
+      if (sec >= cp.timeSeconds) {
+        triggeredCheckpointsRef.current.add(cp.id);
+        playerApiRef.current?.pause();
+        setIsPlaying(false);
+        setActiveCheckpoint(cp);
+        playSquish();
+        break;
+      }
     }
-    return () => clearInterval(interval);
-  }, [isPlaying, activeCheckpoint, activeVideo, completedCheckpoints, playSquish]);
+  }, [activeVideo, playSquish]);
+
+  const handlePlayerReady = useCallback((api) => {
+    playerApiRef.current = api;
+    const d = api.getDuration?.();
+    if (d && Number.isFinite(d) && d > 0) setVideoDuration(Math.floor(d));
+  }, []);
+
+  const togglePlayback = () => {
+    playSquish();
+    if (isPlaying) {
+      playerApiRef.current?.pause();
+    } else {
+      playerApiRef.current?.play();
+    }
+  };
+
+  const startQuestFromBeginning = () => {
+    triggeredCheckpointsRef.current = new Set();
+    setCurrentTime(0);
+    setActiveCheckpoint(null);
+    setCompletedCheckpoints([]);
+    setSelectedOption(null);
+    setQuizSubmitted(false);
+    setIsCorrect(false);
+    playerApiRef.current?.seekTo(0);
+    playerApiRef.current?.play();
+    playSuccess();
+  };
 
   const handleAnswerSubmit = (optionText) => {
     if (!activeCheckpoint) return;
@@ -143,7 +183,10 @@ function LessonContent() {
       playSuccess();
       addSeeds(50);
       setCompletedCheckpoints(prev => [...prev, activeCheckpoint.id]);
-      logCheckpoint?.(activeVideo.id, activeCheckpoint.id, true, 50);
+      logCheckpoint?.(activeVideo.id, activeCheckpoint.id, true, 50, {
+        storyTitle: activeVideo.title,
+        checkpointTitle: activeCheckpoint.title,
+      });
     } else {
       playSquish();
       logCheckpoint?.(activeVideo.id, activeCheckpoint.id, false, 0);
@@ -213,7 +256,7 @@ function LessonContent() {
     setSelectedOption(null);
     setQuizSubmitted(false);
     setIsCorrect(false);
-    setIsPlaying(true);
+    playerApiRef.current?.play();
   };
 
   const handleGenerateAiCheckpoints = async () => {
@@ -230,7 +273,9 @@ function LessonContent() {
         setActiveVideo(data.story);
         setCurrentTime(0);
         setCompletedCheckpoints([]);
-        setIsPlaying(true);
+        triggeredCheckpointsRef.current = new Set();
+        playerApiRef.current?.seekTo(0);
+        playerApiRef.current?.play();
         playSuccess();
       }
     } catch (e) { console.error(e); }
@@ -244,7 +289,7 @@ function LessonContent() {
   };
 
   const checkpoints = activeVideo.checkpoints || [];
-  const duration = activeVideo.durationSeconds || 180;
+  const duration = videoDuration || activeVideo.durationSeconds || 180;
   const progressPercent = Math.min((currentTime / duration) * 100, 100);
 
   return (
@@ -273,7 +318,15 @@ function LessonContent() {
             const active = vid.id === activeVideo.id;
             return (
               <button key={vid.id}
-                onClick={() => { playSquish(); setActiveVideo(vid); setCurrentTime(0); setIsPlaying(false); setActiveCheckpoint(null); setCompletedCheckpoints([]); }}
+                onClick={() => {
+                  playSquish();
+                  setActiveVideo(vid);
+                  setCurrentTime(0);
+                  setIsPlaying(false);
+                  setActiveCheckpoint(null);
+                  setCompletedCheckpoints([]);
+                  triggeredCheckpointsRef.current = new Set();
+                }}
                 className="px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border"
                 style={active
                   ? { background: C.gold, color: C.brown, fontWeight: 900, borderColor: C.goldDark, boxShadow: `0 4px 12px rgba(255,215,0,0.4)` }
@@ -297,16 +350,19 @@ function LessonContent() {
           <div className="relative aspect-video rounded-3xl border-4 overflow-hidden group"
             style={{ background: "#0d0d0d", borderColor: activeCheckpoint ? "#ba1a1a" : C.goldDark, boxShadow: `0 20px 50px rgba(0,0,0,0.4)` }}>
 
-            {/* Real YouTube Embed */}
-            <iframe
-              key={activeVideo.youtubeId}
-              src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-              title={activeVideo.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full"
-              style={{ border: "none" }}
-            />
+            {activeVideo.youtubeId ? (
+              <YouTubeQuestPlayer
+                videoId={activeVideo.youtubeId}
+                onReady={handlePlayerReady}
+                onTimeUpdate={handleTimeUpdate}
+                onDurationChange={(d) => d > 0 && setVideoDuration(Math.floor(d))}
+                onPlayingChange={setIsPlaying}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-white/60 text-sm font-bold">
+                No video linked for this quest
+              </div>
+            )}
 
             {/* CHECKPOINT MODAL OVERLAY */}
             {activeCheckpoint && (
@@ -399,7 +455,7 @@ function LessonContent() {
 
           {/* ── PLAYBACK CONTROLS ── */}
           <p className="text-xs font-bold text-center px-2" style={{ color: C.textMid }}>
-            Tap <strong>Play</strong> below to run the quest timer — the video plays above and checkpoints pop up automatically!
+            Checkpoints sync with the video — when the story reaches a key moment, your quiz pops up automatically.
           </p>
           <div className="rounded-2xl p-5 border select-none"
             style={{ background: "white", borderColor: C.border, boxShadow: "0 10px 30px -10px rgba(112,93,0,0.10)" }}>
@@ -415,7 +471,7 @@ function LessonContent() {
                   title={cp.title}
                 />
               ))}
-              <div className="absolute inset-0 rounded-full transition-all duration-1000"
+              <div className="absolute inset-0 rounded-full transition-all duration-150"
                 style={{ width: `${progressPercent}%`, background: `linear-gradient(90deg,${C.gold},${C.goldDark})` }} />
             </div>
 
@@ -423,7 +479,7 @@ function LessonContent() {
               {/* Play/Pause Button */}
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => { playSquish(); setIsPlaying(prev => !prev); }}
+                  onClick={togglePlayback}
                   className="w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer squishy-button"
                   style={{ background: C.gold, borderColor: C.goldDark, color: C.brown }}>
                   <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -586,7 +642,7 @@ function LessonContent() {
 
             {/* CTA */}
             <button
-              onClick={() => { setCurrentTime(0); setIsPlaying(true); setActiveCheckpoint(null); setCompletedCheckpoints([]); playSuccess(); }}
+              onClick={startQuestFromBeginning}
               className="w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 cursor-pointer squishy-button border"
               style={{ background: `linear-gradient(135deg,${C.gold},#f5c800)`, color: C.brown, borderColor: C.goldDark }}>
               <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_circle</span>

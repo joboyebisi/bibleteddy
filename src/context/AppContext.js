@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authCallbackUrl } from "@/lib/siteUrl";
 import { supabase } from "@/lib/supabaseClient";
 import confetti from "canvas-confetti";
+import { buildAchievementCopy, generateShareToken, shareUrl } from "@/lib/achievements";
 
 const AppContext = createContext();
 
@@ -12,11 +13,21 @@ const AppContext = createContext();
 function normalizeCuratedVideo(row) {
   if (!row) return row;
   const checkpoints = row.checkpoints || row.quiz_questions || [];
+  let topic = row.gemini_topic || row.topic || "";
+  let verse = row.verse || "";
+  if (!verse && typeof topic === "string" && topic.includes("::")) {
+    const [t, v] = topic.split("::");
+    topic = t;
+    verse = v;
+  }
   return {
     ...row,
     youtubeId: row.youtubeId || row.youtube_id || "",
     thumbnailUrl: row.thumbnailUrl || row.thumbnail_url || (row.youtube_id ? `https://img.youtube.com/vi/${row.youtube_id}/hqdefault.jpg` : ""),
     desc: row.desc || row.description || "",
+    verse,
+    topic,
+    durationSeconds: row.durationSeconds || row.duration_seconds || 180,
     checkpoints: Array.isArray(checkpoints) ? checkpoints : [],
     quiz_questions: checkpoints,
   };
@@ -114,6 +125,7 @@ export const AppProvider = ({ children }) => {
   const [stories, setStories] = useState(DEFAULT_STORIES);
   const [isLoading, setIsLoading] = useState(true);
   const [verseOfDay, setVerseOfDay] = useState(null); // YouVersion Verse of Day
+  const [achievements, setAchievements] = useState([]);
 
   // ── Fetch YouVersion Verse of the Day ──
   const fetchVerseOfDay = useCallback(async () => {
@@ -142,6 +154,8 @@ export const AppProvider = ({ children }) => {
           else if (kids.length > 0) setActiveChildId(kids[0].id);
           const videos = JSON.parse(localStorage.getItem(`btb_curated_${p.id}`) || "[]");
           setCuratedVideos(videos.map(normalizeCuratedVideo));
+          const ach = JSON.parse(localStorage.getItem(`btb_achievements_${p.id}`) || "[]");
+          setAchievements(ach);
         }
       } catch (e) { /* silent */ }
       return;
@@ -202,6 +216,14 @@ export const AppProvider = ({ children }) => {
       .order("created_at", { ascending: false });
     if (videos) setCuratedVideos(videos.map(normalizeCuratedVideo));
 
+    const { data: shares } = await supabase
+      .from("achievement_shares")
+      .select("*")
+      .eq("parent_id", authUser.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (shares) setAchievements(shares);
+
     // Subscribe to realtime child profile updates
     const channel = supabase
       .channel(`child-updates-${authUser.id}`)
@@ -249,7 +271,7 @@ export const AppProvider = ({ children }) => {
     if (supabase) {
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: authCallbackUrl("/onboarding/child") }
+        options: { emailRedirectTo: authCallbackUrl("/parent") }
       });
       setIsLoading(false);
       if (error) throw error;
@@ -286,7 +308,7 @@ export const AppProvider = ({ children }) => {
     const base =
       (typeof window !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
       (typeof window !== "undefined" ? window.location.origin : "");
-    window.location.href = `${base}/api/youversion/login?next=/onboarding/child`;
+    window.location.href = `${base}/api/youversion/login?next=/parent`;
   };
 
   // ── Auth: Sign In with Google ──
@@ -378,8 +400,94 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // ── Record shareable achievement (parent dashboard + social invite) ──
+  const recordAchievement = async (type, ctx = {}) => {
+    const active = getActiveChild();
+    if (!active || !parent) return null;
+
+    const copy = buildAchievementCopy(type, {
+      childName: active.name,
+      storyTitle: ctx.storyTitle,
+      checkpointTitle: ctx.checkpointTitle,
+      verseReference: ctx.verseReference,
+      badgeName: ctx.badgeName,
+      accuracyPercent: ctx.accuracyPercent,
+    });
+
+    const shareToken = generateShareToken();
+    const record = {
+      share_token: shareToken,
+      child_id: active.id,
+      parent_id: parent.id,
+      achievement_type: type,
+      title: ctx.title || copy.title,
+      subtitle: ctx.subtitle || copy.subtitle,
+      story_id: ctx.storyId || null,
+      story_title: ctx.storyTitle || null,
+      emoji: copy.emoji,
+      seeds_earned: ctx.seedsEarned || 0,
+      child_name: active.name,
+      metadata: ctx.metadata || {},
+    };
+
+    const url = shareUrl(shareToken);
+
+    if (supabase && user) {
+      const { error } = await supabase.from("achievement_shares").insert(record);
+      if (error) console.warn("achievement_shares insert:", error.message);
+    } else {
+      const stored = {
+        ...record,
+        id: shareToken,
+        created_at: new Date().toISOString(),
+        share_url: url,
+      };
+      const key = `btb_achievements_${parent.id}`;
+      const list = JSON.parse(localStorage.getItem(key) || "[]");
+      localStorage.setItem(key, JSON.stringify([stored, ...list].slice(0, 50)));
+    }
+
+    setAchievements((prev) => [{ ...record, id: shareToken, created_at: new Date().toISOString(), share_url: url }, ...prev]);
+    return { shareToken, shareUrl: url, copy };
+  };
+
+  const copyShareLink = async (shareToken) => {
+    const url = shareUrl(shareToken);
+    try {
+      await navigator.clipboard.writeText(url);
+      return url;
+    } catch {
+      return url;
+    }
+  };
+
+  const shareAchievementNative = async (achievement) => {
+    const token = achievement.share_token || achievement.id;
+    const url = shareUrl(token);
+    const copy = buildAchievementCopy(achievement.achievement_type, {
+      childName: achievement.child_name,
+      storyTitle: achievement.story_title,
+      checkpointTitle: achievement.metadata?.checkpointTitle,
+      verseReference: achievement.metadata?.verseReference,
+      badgeName: achievement.metadata?.badgeName,
+    });
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: copy.socialTitle,
+          text: copy.socialDescription,
+          url,
+        });
+        return url;
+      } catch {
+        /* user cancelled */
+      }
+    }
+    return copyShareLink(token);
+  };
+
   // ── Earn Badge ──
-  const addBadge = async (badgeName) => {
+  const addBadge = async (badgeName, storyId = null) => {
     const active = getActiveChild();
     if (!active) return;
     const currentBadges = active.badges || [];
@@ -392,39 +500,84 @@ export const AppProvider = ({ children }) => {
 
     if (supabase && user) {
       await supabase.from("child_profiles").update({ badges: newBadges, seeds: newSeeds }).eq("id", active.id);
-      await supabase.from("badges_earned").insert({ child_id: active.id, badge_name: badgeName });
+      await supabase.from("badges_earned").insert({ child_id: active.id, badge_name: badgeName, story_id: storyId });
     }
+
+    await recordAchievement("badge", { badgeName, storyId, seedsEarned: 50, metadata: { badgeName } });
 
     confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors: ["#ffd700", "#ffffff", "#0c6780"] });
   };
 
   // ── Log Checkpoint Completion ──
-  const logCheckpoint = async (storyId, checkpointId, isCorrect, seedsEarned) => {
+  const logCheckpoint = async (storyId, checkpointId, isCorrect, seedsEarned, extra = {}) => {
     const active = getActiveChild();
-    if (!active || !supabase || !user) return;
+    if (!active) return;
 
-    await supabase.from("checkpoint_completions").insert({
-      child_id: active.id,
-      story_id: storyId,
-      checkpoint_id: checkpointId,
-      is_correct: isCorrect,
-      seeds_earned: seedsEarned
-    });
+    const completed = [...(active.completed_checkpoints || [])];
+    if (isCorrect && !completed.includes(checkpointId)) {
+      completed.push(checkpointId);
+      setKidsProfiles(prev => prev.map(k => k.id === active.id ? { ...k, completed_checkpoints: completed } : k));
+      if (supabase && user) {
+        await supabase.from("child_profiles").update({ completed_checkpoints: completed }).eq("id", active.id);
+      }
+    }
+
+    if (supabase && user) {
+      await supabase.from("checkpoint_completions").insert({
+        child_id: active.id,
+        story_id: storyId,
+        checkpoint_id: checkpointId,
+        is_correct: isCorrect,
+        seeds_earned: seedsEarned,
+      });
+    }
+
+    if (isCorrect) {
+      await recordAchievement("checkpoint", {
+        storyId,
+        storyTitle: extra.storyTitle,
+        checkpointTitle: extra.checkpointTitle,
+        seedsEarned,
+        metadata: { checkpointId, checkpointTitle: extra.checkpointTitle },
+      });
+
+      const story = stories.find(s => s.id === storyId) || curatedVideos.find(v => String(v.id) === String(storyId));
+      const cps = story?.checkpoints || [];
+      const allDone = cps.length > 0 && cps.every(cp => completed.includes(cp.id));
+      if (allDone) {
+        await recordAchievement("quest_complete", {
+          storyId,
+          storyTitle: extra.storyTitle || story?.title,
+          seedsEarned: 0,
+        });
+      }
+    }
   };
 
   // ── Log Verse Completion ──
   const logVerseCompletion = async (verseRef, translation, accuracyPercent, passed, seedsEarned) => {
     const active = getActiveChild();
-    if (!active || !supabase || !user) return;
+    if (!active) return;
 
-    await supabase.from("verse_completions").insert({
-      child_id: active.id,
-      verse_reference: verseRef,
-      translation,
-      accuracy_percent: accuracyPercent,
-      passed,
-      seeds_earned: seedsEarned
-    });
+    if (supabase && user) {
+      await supabase.from("verse_completions").insert({
+        child_id: active.id,
+        verse_reference: verseRef,
+        translation,
+        accuracy_percent: accuracyPercent,
+        passed,
+        seeds_earned: seedsEarned,
+      });
+    }
+
+    if (passed) {
+      await recordAchievement("verse", {
+        verseReference: verseRef,
+        accuracyPercent,
+        seedsEarned,
+        metadata: { verseReference: verseRef, translation, accuracyPercent },
+      });
+    }
   };
 
   // ── Curate Video via Gemini + Gloo ──
@@ -448,7 +601,9 @@ export const AppProvider = ({ children }) => {
       youtube_id: story.youtubeId || "",
       thumbnail_url: story.thumbnailUrl || (story.youtubeId ? `https://img.youtube.com/vi/${story.youtubeId}/hqdefault.jpg` : ""),
       description: story.desc || "",
-      gemini_topic: story.topic || "",
+      gemini_topic: story.verse
+        ? `${story.topic || ""}::${story.verse}`
+        : (story.topic || ""),
       quiz_questions: story.checkpoints || [],
       age_group: "all",
       approved: true
@@ -504,7 +659,7 @@ export const AppProvider = ({ children }) => {
       // Child data
       kidsProfiles, activeChildId, activeChild: getActiveChild(),
       // Content
-      curatedVideos, stories, verseOfDay,
+      curatedVideos, stories, verseOfDay, achievements,
       // Auth actions
       signUp: handleSignUp,
       signIn: handleSignIn,
@@ -520,6 +675,9 @@ export const AppProvider = ({ children }) => {
       addBadge,
       logCheckpoint,
       logVerseCompletion,
+      recordAchievement,
+      copyShareLink,
+      shareAchievement: shareAchievementNative,
       // UI
       playSquish: playSquishSound,
       playSuccess: playSuccessSound

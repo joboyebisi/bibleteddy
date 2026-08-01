@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 
 export default function KidsBadgesPage() {
-  const { activeChild, playSquish, playSuccess } = useApp();
-  const [showShareToast, setShowShareToast] = useState(false);
+  const { activeChild, achievements, shareAchievement, copyShareLink, playSquish, playSuccess } = useApp();
+  const [showShareToast, setShowShareToast] = useState("");
 
   // Set of all badges with metadata
   const BADGES_METADATA = [
@@ -37,13 +37,23 @@ export default function KidsBadgesPage() {
     }
   ];
 
-  const handleShareClick = () => {
+  const handleShareClick = async () => {
     playSuccess();
-    setShowShareToast(true);
-    // Hide toast after 3 seconds
-    setTimeout(() => {
-      setShowShareToast(false);
-    }, 3000);
+    const latest = achievements.find(
+      (a) => a.child_id === activeChild?.id && a.achievement_type === "badge"
+    ) || achievements.find((a) => a.child_id === activeChild?.id);
+
+    if (latest) {
+      await shareAchievement(latest);
+      setShowShareToast("Celebration link shared! Friends can see the milestone and join Bible Teddy.");
+    } else if (childBadges.length > 0) {
+      const token = achievements[0]?.share_token;
+      if (token) await copyShareLink(token);
+      setShowShareToast("Copy a celebration link from the Parent Dashboard after your next quest!");
+    } else {
+      setShowShareToast("Earn a badge first — then share your victory with family!");
+    }
+    setTimeout(() => setShowShareToast(""), 4000);
   };
 
   const childBadges = activeChild?.badges || ["Kindness", "Faith"];
@@ -211,7 +221,7 @@ export default function KidsBadgesPage() {
       {showShareToast && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-secondary text-white px-md py-sm rounded-full shadow-2xl z-50 animate-fade-in flex items-center gap-xs font-headline-md text-sm border border-white/20 select-none">
           <span className="material-symbols-outlined text-white">check_circle</span>
-          Shared to YouVersion Profile successfully!
+          {showShareToast}
         </div>
       )}
     </div>

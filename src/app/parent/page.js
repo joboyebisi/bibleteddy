@@ -13,11 +13,16 @@ export default function ParentDashboardPage() {
     activeChild,
     selectChild,
     curatedVideos,
+    achievements,
     addCuratedVideo,
+    shareAchievement,
+    copyShareLink,
     playSquish,
     playSuccess,
     signOut
   } = useApp();
+
+  const [shareToast, setShareToast] = useState("");
 
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -27,11 +32,12 @@ export default function ParentDashboardPage() {
 
   const handleCurateSubmit = async (e) => {
     e.preventDefault();
-    if (!youtubeUrl.trim()) {
+    const url = youtubeUrl.trim();
+    if (!url) {
       setErrorMsg("Please paste a valid YouTube URL first!");
       return;
     }
-    if (!youtubeUrl.includes("youtube.com") && !youtubeUrl.includes("youtu.be")) {
+    if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
       setErrorMsg("Please enter a valid YouTube link (youtube.com or youtu.be)");
       return;
     }
@@ -56,7 +62,7 @@ export default function ParentDashboardPage() {
 
   const completeQuizGeneration = async () => {
     try {
-      const video = await addCuratedVideo(youtubeUrl);
+      const video = await addCuratedVideo(url);
       setSuccessMsg(`Successfully scanned video and generated quiz: "${video.title}"`);
       setYoutubeUrl("");
       playSuccess();
@@ -70,6 +76,24 @@ export default function ParentDashboardPage() {
   const handleProfileSelect = (id) => {
     playSquish();
     selectChild(id);
+  };
+
+  const childAchievements = achievements.filter(
+    (a) => !activeChild?.id || a.child_id === activeChild.id
+  );
+
+  const handleShareAchievement = async (achievement) => {
+    playSquish();
+    await shareAchievement(achievement);
+    setShareToast("Celebration link ready — share it with grandparents and friends!");
+    setTimeout(() => setShareToast(""), 4000);
+  };
+
+  const handleCopyAchievement = async (achievement) => {
+    const token = achievement.share_token || achievement.id;
+    await copyShareLink(token);
+    setShareToast("Link copied! Paste it in a text or social post.");
+    setTimeout(() => setShareToast(""), 4000);
   };
 
   return (
@@ -335,6 +359,88 @@ export default function ParentDashboardPage() {
               </div>
             </section>
 
+            {/* Family Achievements — shareable milestones */}
+            <section className="md:col-span-12 bg-gradient-to-br from-[#fffde7] to-white rounded-lg p-lg soft-shadow border-2 border-[#e9c400]/40">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md mb-md">
+                <div className="flex items-center gap-sm">
+                  <div className="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center shadow-inner">
+                    <span className="material-symbols-outlined text-on-primary-container text-md" style={{ fontVariationSettings: "'FILL' 1" }}>celebration</span>
+                  </div>
+                  <div>
+                    <h2 className="font-headline-md text-headline-md text-on-surface font-bold">Family Achievements</h2>
+                    <p className="font-body-md text-on-surface-variant text-xs font-medium">
+                      {activeChild?.name ? `${activeChild.name}'s milestones` : "Your children's milestones"} — share to celebrate & invite other parents
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {shareToast && (
+                <div className="mb-md p-sm bg-primary-container/30 text-primary border border-primary/20 rounded-xl text-center font-body-md text-sm font-bold">
+                  {shareToast}
+                </div>
+              )}
+
+              {childAchievements.length === 0 ? (
+                <div className="text-center py-lg px-md rounded-xl border border-dashed border-outline-variant bg-surface-container-low">
+                  <p className="text-3xl mb-2">🧸</p>
+                  <p className="font-headline-md text-on-surface font-bold text-sm">No milestones yet</p>
+                  <p className="font-body-md text-on-surface-variant text-xs font-medium mt-1 max-w-md mx-auto">
+                    When {activeChild?.name || "your child"} completes a video checkpoint, recites a verse, or earns a badge, it will appear here with a shareable celebration link.
+                  </p>
+                  <Link href="/kids" className="inline-block mt-md text-secondary font-bold text-sm underline">
+                    Send them to the Adventure Map →
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
+                  {childAchievements.slice(0, 9).map((a) => {
+                    const token = a.share_token || a.id;
+                    const sharePath = `/share/${token}`;
+                    return (
+                      <div key={a.id || token} className="rounded-xl border-2 border-[#e9c400]/50 bg-white p-md flex flex-col gap-sm shadow-sm">
+                        <div className="flex items-start gap-sm">
+                          <span className="text-2xl">{a.emoji || "🌟"}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-headline-md text-sm font-black text-on-surface leading-snug">{a.title}</p>
+                            <p className="font-body-md text-[11px] text-on-surface-variant italic line-clamp-2">{a.subtitle}</p>
+                            <p className="font-label-caps text-[10px] text-on-surface-variant/60 mt-1 font-bold">
+                              {new Date(a.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                              {a.seeds_earned ? ` • +${a.seeds_earned} seeds` : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 mt-auto pt-sm">
+                          <Link
+                            href={sharePath}
+                            target="_blank"
+                            className="flex-1 py-2 rounded-lg text-center text-[10px] font-black bg-secondary-container/30 text-secondary border border-secondary/20 hover:bg-secondary-container/50"
+                          >
+                            View
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleShareAchievement(a)}
+                            className="flex-1 py-2 rounded-lg text-[10px] font-black bg-primary text-on-primary cursor-pointer hover:bg-primary/90"
+                          >
+                            Share
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyAchievement(a)}
+                            className="px-2 py-2 rounded-lg text-[10px] font-black border border-outline-variant text-on-surface-variant cursor-pointer hover:bg-surface-container-high"
+                            title="Copy link"
+                          >
+                            <span className="material-symbols-outlined text-sm">link</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
             {/* Content Curation Module (Wide Section) */}
             <section className="md:col-span-12 bg-white rounded-lg p-lg soft-shadow border border-white">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-md mb-lg">
@@ -349,15 +455,15 @@ export default function ParentDashboardPage() {
                 </p>
               </div>
               
-              <form onSubmit={handleCurateSubmit} className="flex flex-col sm:flex-row gap-md items-center w-full">
+              <form onSubmit={handleCurateSubmit} className="flex flex-col gap-md w-full">
                 <div className="relative flex-1 w-full">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/40">
+                  <span className="absolute left-4 top-4 material-symbols-outlined text-on-surface-variant/40">
                     link
                   </span>
-                  <input
-                    className="w-full pl-12 pr-4 py-4 bg-surface-container-low border-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl font-body-md transition-all font-medium"
+                  <textarea
+                    className="w-full min-h-[88px] pl-12 pr-4 py-4 bg-surface-container-low border-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl font-body-md transition-all font-medium resize-y break-all"
                     placeholder="Paste YouTube URL here (e.g. https://youtube.com/watch?v=...)"
-                    type="text"
+                    rows={3}
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
                     disabled={isGenerating}
@@ -368,7 +474,7 @@ export default function ParentDashboardPage() {
                 <button
                   type="submit"
                   disabled={isGenerating}
-                  className="w-full sm:w-auto px-xl py-4 bg-secondary text-white rounded-full font-headline-md text-headline-md flex items-center justify-center gap-sm squish-effect shadow-lg shadow-secondary/20 whitespace-nowrap font-bold cursor-pointer hover:bg-secondary/90 transition-colors disabled:opacity-50"
+                  className="w-full sm:w-auto sm:self-end px-xl py-4 bg-secondary text-white rounded-full font-headline-md text-headline-md flex items-center justify-center gap-sm squish-effect shadow-lg shadow-secondary/20 whitespace-nowrap font-bold cursor-pointer hover:bg-secondary/90 transition-colors disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined">auto_awesome</span>
                   Generate Quiz
@@ -415,7 +521,7 @@ export default function ParentDashboardPage() {
                           <span className="material-symbols-outlined text-secondary">movie</span>
                           <div className="overflow-hidden">
                             <p className="font-headline-md text-sm font-bold truncate text-on-surface">{v.title}</p>
-                            <p className="font-body-md text-xs font-medium text-on-surface-variant truncate">{v.youtube_url}</p>
+                            <p className="font-body-md text-xs font-medium text-on-surface-variant break-all line-clamp-2">{v.youtube_url}</p>
                           </div>
                         </div>
                         <span className="bg-primary-container text-on-primary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase shrink-0 border border-primary/20">

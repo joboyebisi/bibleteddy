@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { resolvePostLoginPath } from "@/lib/postLoginPath";
 
 export default function ParentSignUpPage() {
   const router = useRouter();
@@ -15,11 +16,17 @@ export default function ParentSignUpPage() {
   const [isSignInMode, setIsSignInMode] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inviteRef, setInviteRef] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get("error");
     const hint = params.get("hint");
+    const refParam = params.get("ref");
+    if (refParam) {
+      localStorage.setItem("btb_invite_ref", refParam);
+      setInviteRef(refParam);
+    }
     if (params.get("mode") === "login") {
       setIsSignInMode(true);
     }
@@ -79,8 +86,9 @@ export default function ParentSignUpPage() {
 
     try {
       if (isSignInMode) {
-        await signIn(email, password);
-        router.push("/parent");
+        const user = await signIn(email, password);
+        const dest = await resolvePostLoginPath(user?.id, "/parent");
+        router.push(dest);
       } else {
         await signUp(email, password);
         router.push("/onboarding/child");
@@ -159,6 +167,15 @@ export default function ParentSignUpPage() {
           {/* Progress Line Active */}
           <div className="absolute top-6 left-0 w-1/4 h-2 bg-primary-container -z-0 rounded-full transition-all duration-500"></div>
         </div>
+
+        {inviteRef && (
+          <div className="w-full max-w-md mb-md p-md rounded-xl border-2 border-primary/30 bg-primary-container/20 text-center">
+            <p className="font-headline-md text-sm font-black text-primary">🎉 You were invited to Bible Teddy!</p>
+            <p className="font-body-md text-xs text-on-surface-variant font-medium mt-1">
+              A family shared a faith milestone with you. Create your free account to start your own kids&apos; Bible adventure.
+            </p>
+          </div>
+        )}
 
         <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-lg items-center mt-4">
           {/* Left Side: Teddy Message */}

@@ -47,11 +47,12 @@ export default function CurationWalkthroughPage() {
 
   const handleCurateSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (!youtubeUrl.trim()) {
+    const url = youtubeUrl.trim();
+    if (!url) {
       setErrorMsg("Please paste a valid YouTube URL first!");
       return;
     }
-    if (!youtubeUrl.includes("youtube.com") && !youtubeUrl.includes("youtu.be")) {
+    if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
       setErrorMsg("Please enter a valid YouTube link (youtube.com or youtu.be)");
       return;
     }
@@ -77,7 +78,7 @@ export default function CurationWalkthroughPage() {
 
   const handleGenerationSuccess = async () => {
     try {
-      await addCuratedVideo(youtubeUrl);
+      await addCuratedVideo(url);
       setIsSuccess(true);
       playSuccess();
     } catch (err) {
@@ -135,28 +136,28 @@ export default function CurationWalkthroughPage() {
                   PASTE YOUTUBE URL
                 </label>
                 <div className="relative">
-                  <input
-                    className="w-full h-16 pl-12 pr-32 bg-surface-container-low border-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-full font-body-md transition-all font-medium"
+                  <textarea
+                    className="w-full min-h-[88px] pl-12 pr-4 py-4 bg-surface-container-low border-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-2xl font-body-md transition-all font-medium resize-y break-all"
                     placeholder="https://youtube.com/watch?v=..."
-                    type="text"
+                    rows={3}
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
                     disabled={isGenerating}
                     required
                   />
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/40">
+                  <span className="absolute left-4 top-4 material-symbols-outlined text-on-surface-variant/40">
                     link
                   </span>
-                  
-                  <button
-                    type="submit"
-                    disabled={isGenerating}
-                    className="absolute right-2 top-2 bottom-2 px-md bg-secondary text-white rounded-full font-bold flex items-center gap-xs cursor-pointer hover:bg-secondary/90 transition-colors disabled:opacity-50"
-                  >
-                    <span className="material-symbols-outlined">magic_button</span>
-                    Curate
-                  </button>
                 </div>
+
+                <button
+                  type="submit"
+                  disabled={isGenerating}
+                  className="w-full py-4 px-md bg-secondary text-white rounded-full font-bold flex items-center justify-center gap-xs cursor-pointer hover:bg-secondary/90 transition-colors disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined">magic_button</span>
+                  Curate Video
+                </button>
 
                 {errorMsg && (
                   <p className="text-error font-body-md font-bold px-sm">{errorMsg}</p>
