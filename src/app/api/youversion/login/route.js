@@ -50,6 +50,7 @@ export async function GET(request) {
     state,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
+    require_user_interaction: "true",
   });
 
   return NextResponse.redirect(`${authBase}/authorize?${params.toString()}`);

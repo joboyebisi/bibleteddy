@@ -13,11 +13,13 @@ export async function GET(request) {
     siteUrl,
     redirectUri,
     appKeyConfigured: !!appKey,
+    alternativeCallback: `${siteUrl}/onboarding/youversion/callback`,
     instructions: [
       "Go to https://platform.youversion.com",
       "Open your app → Callback URL",
-      `Register this URL exactly: ${redirectUri}`,
-      "Save, then redeploy if you changed Vercel env vars",
+      `Primary (recommended): ${siteUrl}/onboarding/youversion/callback`,
+      `Or API route: ${redirectUri}`,
+      "URLs must match exactly what is registered in the portal",
     ],
   });
 }
