@@ -1,44 +1,55 @@
 import { NextResponse } from "next/server";
+import { referenceToPassageId } from "@/lib/youversion/passage";
+import { getYouVersionConfig } from "@/lib/youversion/config";
 
 // YouVersion Bible IDs for the translations we use
 const BIBLE_IDS = {
-  ICB: 1588,    // International Children's Bible
-  ESV: 59,      // English Standard Version
-  NIV: 111,     // New International Version
-  KJV: 1,       // King James Version
-  NLT: 116,     // New Living Translation
+  ICB: 1588,
+  ESV: 59,
+  NIV: 111,
+  KJV: 1,
+  NLT: 116,
 };
+
+function getAppKey() {
+  return getYouVersionConfig().appKey;
+}
+
+function buildHeaders(appKey) {
+  return {
+    "X-YVP-App-Key": appKey,
+    Accept: "application/json",
+    "Accept-Language": "en",
+  };
+}
 
 /**
  * GET /api/youversion/verse?reference=John+3:16&translation=ICB
- * Fetches a specific verse from YouVersion Platform API
  */
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const reference = searchParams.get("reference") || "John 3:16";
   const translation = searchParams.get("translation") || "ICB";
 
-  const token = process.env.YOUVERSION_API_TOKEN;
-
-  // If no token, return curated fallback data
-  if (!token) {
+  const appKey = getAppKey();
+  if (!appKey) {
     return NextResponse.json(getFallbackVerse(reference, translation));
   }
 
   try {
     const bibleId = BIBLE_IDS[translation] || BIBLE_IDS.ICB;
-    const encoded = encodeURIComponent(reference);
-    
-    // YouVersion Platform API v1
-    const url = `${process.env.YOUVERSION_API_BASE || "https://api.youversion.com/v1"}/bible/verses/${encoded}?bible_id=${bibleId}`;
-    
+    const passageId = referenceToPassageId(reference);
+
+    if (!passageId) {
+      return NextResponse.json(getFallbackVerse(reference, translation));
+    }
+
+    const apiBase = getYouVersionConfig().apiBase;
+    const url = `${apiBase}/bibles/${bibleId}/passages/${passageId}`;
+
     const res = await fetch(url, {
-      headers: {
-        "X-YouVersion-Developer-Token": token,
-        "Accept": "application/json",
-        "Accept-Language": "en"
-      },
-      next: { revalidate: 3600 } // Cache 1 hour
+      headers: buildHeaders(appKey),
+      next: { revalidate: 3600 },
     });
 
     if (!res.ok) {
@@ -47,15 +58,19 @@ export async function GET(request) {
     }
 
     const data = await res.json();
-    
-    return NextResponse.json({
-      reference: data.reference || reference,
-      translation,
-      text: data.text || data.content || "",
-      copyright: data.copyright || `YouVersion • ${translation}`,
-      source: "youversion"
-    });
+    const text =
+      data.content ||
+      data.passage?.content ||
+      data.text ||
+      extractTextFromPassage(data);
 
+    return NextResponse.json({
+      reference: data.reference?.human || data.human_reference || reference,
+      translation,
+      text: stripHtml(text),
+      copyright: data.copyright || `YouVersion • ${translation}`,
+      source: "youversion",
+    });
   } catch (err) {
     console.error("YouVersion API error:", err);
     return NextResponse.json(getFallbackVerse(reference, translation));
@@ -64,55 +79,73 @@ export async function GET(request) {
 
 /**
  * POST /api/youversion/verse
- * Fetches verse of the day or a specific reference
  */
 export async function POST(request) {
   const { reference, translation = "ICB" } = await request.json();
-  const token = process.env.YOUVERSION_API_TOKEN;
+  const appKey = getAppKey();
 
-  if (!token) {
-    return NextResponse.json(getFallbackVerse(reference, translation));
+  if (!appKey) {
+    return NextResponse.json(getFallbackVerse(reference || "John 3:16", translation));
   }
 
   try {
-    // Verse of the day endpoint
+    const apiBase = getYouVersionConfig().apiBase;
+
     if (!reference) {
-      const votdUrl = `${process.env.YOUVERSION_API_BASE || "https://api.youversion.com/v1"}/verse_of_the_day`;
+      const bibleId = BIBLE_IDS.NIV || 111;
+      const votdUrl = `${apiBase}/bibles/${bibleId}/passages/JHN.3.16`;
       const res = await fetch(votdUrl, {
-        headers: { "X-YouVersion-Developer-Token": token, "Accept": "application/json" },
-        next: { revalidate: 86400 }
+        headers: buildHeaders(appKey),
+        next: { revalidate: 86400 },
       });
 
       if (res.ok) {
         const data = await res.json();
+        const text = stripHtml(data.content || data.text || "");
         return NextResponse.json({
-          reference: data.verse?.human_reference || "John 3:16",
+          reference: data.reference?.human || "John 3:16",
           translation: "NIV",
-          text: data.verse?.text || "",
-          imageUrl: data.image?.url,
-          source: "youversion_votd"
+          text,
+          source: "youversion",
         });
       }
     }
 
     const bibleId = BIBLE_IDS[translation] || BIBLE_IDS.ICB;
-    const encoded = encodeURIComponent(reference);
-    const url = `${process.env.YOUVERSION_API_BASE || "https://api.youversion.com/v1"}/bible/verses/${encoded}?bible_id=${bibleId}`;
+    const passageId = referenceToPassageId(reference);
+    if (!passageId) {
+      return NextResponse.json(getFallbackVerse(reference, translation));
+    }
 
-    const res = await fetch(url, {
-      headers: { "X-YouVersion-Developer-Token": token, "Accept": "application/json" }
-    });
+    const url = `${apiBase}/bibles/${bibleId}/passages/${passageId}`;
+    const res = await fetch(url, { headers: buildHeaders(appKey) });
 
     if (!res.ok) return NextResponse.json(getFallbackVerse(reference, translation));
-    const data = await res.json();
-    return NextResponse.json({ reference: data.reference || reference, translation, text: data.text || "", source: "youversion" });
 
-  } catch (err) {
+    const data = await res.json();
+    return NextResponse.json({
+      reference: data.reference?.human || reference,
+      translation,
+      text: stripHtml(data.content || data.text || ""),
+      source: "youversion",
+    });
+  } catch {
     return NextResponse.json(getFallbackVerse(reference, translation));
   }
 }
 
-// Curated fallback verses (used when API key absent or fails)
+function stripHtml(html) {
+  if (!html) return "";
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function extractTextFromPassage(data) {
+  if (data.verses?.length) {
+    return data.verses.map((v) => v.text || v.content).join(" ");
+  }
+  return "";
+}
+
 function getFallbackVerse(reference, translation) {
   const fallbacks = {
     "Genesis 1:1": {
@@ -165,6 +198,6 @@ function getFallbackVerse(reference, translation) {
     translation,
     text,
     copyright: `YouVersion ${translation} — bible.com`,
-    source: "fallback"
+    source: "fallback",
   };
 }

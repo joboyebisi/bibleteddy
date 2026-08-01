@@ -8,7 +8,7 @@ import { NextResponse } from "next/server";
  * Body: { topic: string, verseRef?: string, storyTitle?: string, ageGroup?: "little"|"kids"|"teens" }
  */
 export async function POST(request) {
-  const { topic, verseRef, storyTitle, ageGroup = "kids" } = await request.json();
+  const { topic, verseRef, storyTitle, ageGroup = "kids", videoSummary } = await request.json();
 
   if (!topic && !storyTitle) {
     return NextResponse.json({ error: "topic or storyTitle required" }, { status: 400 });
@@ -20,7 +20,7 @@ export async function POST(request) {
   // --- Attempt Gloo AI Studio first ---
   if (glooKey) {
     try {
-      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup);
+      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
       
       const res = await fetch(`${process.env.GLOO_API_BASE || "https://api.studio.gloo.us/v1"}/chat/completions`, {
         method: "POST",
@@ -59,7 +59,7 @@ export async function POST(request) {
   // --- Fallback: Gemini API ---
   if (geminiKey) {
     try {
-      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup);
+      const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
       
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
@@ -90,14 +90,18 @@ export async function POST(request) {
   return NextResponse.json(getStaticFallback(topic || storyTitle));
 }
 
-function buildQuizPrompt(topic, verseRef, ageGroup) {
+function buildQuizPrompt(topic, verseRef, ageGroup, videoSummary) {
   const ageInstruction = ageGroup === "little"
     ? "very simple language for ages 3-5, one syllable answers"
     : ageGroup === "teens"
     ? "deeper theological concepts for ages 11-14"
     : "fun, engaging language for ages 6-10";
 
-  return `Generate 3 interactive Bible quiz checkpoints for a children's video about: "${topic}"${verseRef ? `, scripture reference: ${verseRef}` : ""}.
+  const summaryBlock = videoSummary
+    ? `\nVideo content summary: "${videoSummary}"\nBase questions on specific events from this video.`
+    : "";
+
+  return `Generate 3 interactive Bible quiz checkpoints for a children's video about: "${topic}"${verseRef ? `, scripture reference: ${verseRef}` : ""}.${summaryBlock}
 
 Use ${ageInstruction}.
 

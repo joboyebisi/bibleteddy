@@ -7,7 +7,7 @@ import { useApp } from "@/context/AppContext";
 
 export default function ParentSignUpPage() {
   const router = useRouter();
-  const { signUp, signIn, signInWithGoogle, playSquish, parent } = useApp();
+  const { signUp, signIn, signInWithGoogle, signInWithYouVersion, playSquish, parent } = useApp();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +15,14 @@ export default function ParentSignUpPage() {
   const [isSignInMode, setIsSignInMode] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("error");
+    if (oauthError) {
+      setErrorMsg(`Sign-in failed: ${oauthError.replace(/_/g, " ")}`);
+    }
+  }, []);
 
   // Mouse sparkle script replica
   useEffect(() => {
@@ -73,6 +81,13 @@ export default function ParentSignUpPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleYouVersionSignIn = () => {
+    playSquish();
+    setIsSubmitting(true);
+    setErrorMsg("");
+    signInWithYouVersion();
   };
 
   const handleGoogleSignIn = async () => {
@@ -178,6 +193,21 @@ export default function ParentSignUpPage() {
                     : "Start your child's adventure into God's Word today."}
                 </p>
               </div>
+
+              {/* YouVersion Social Login */}
+              <button
+                id="youversion-signin-btn"
+                onClick={handleYouVersionSignIn}
+                disabled={isSubmitting}
+                className="squish-btn w-full py-md px-lg rounded-full flex items-center justify-center gap-3 hover:brightness-95 transition-all cursor-pointer shadow-md disabled:opacity-50 border-2 bg-[#ff6600] border-[#e55a00] text-white"
+              >
+                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  menu_book
+                </span>
+                <span className="font-headline-md font-bold">
+                  {isSignInMode ? "Sign in with YouVersion" : "Continue with YouVersion"}
+                </span>
+              </button>
 
               {/* Google Social Login */}
               <button

@@ -123,9 +123,12 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 # Google Gemini (Video2App engine)
 GEMINI_API_KEY=AIza...
 
-# YouVersion Platform API
-YOUVERSION_API_TOKEN=your_token_here
+# YouVersion Platform (App Key from https://platform.youversion.com)
+YOUVERSION_APP_KEY=your_app_key_here
+YOUVERSION_REDIRECT_URI=http://localhost:3000/api/youversion/callback
 YOUVERSION_API_BASE=https://api.youversion.com/v1
+# Legacy alias
+YOUVERSION_API_TOKEN=your_app_key_here
 
 # Gloo AI Studio
 GLOO_API_KEY=your_gloo_key_here
@@ -162,7 +165,18 @@ This creates:
 3. Add this redirect URL: `https://your-project.supabase.co/auth/v1/callback`
 4. In [Google Cloud Console](https://console.cloud.google.com), add your Vercel domain to authorized redirect URIs
 
-### 5. Run Locally
+### 5. Configure YouVersion OAuth (Sign in with YouVersion)
+1. Register your app at [platform.youversion.com](https://platform.youversion.com)
+2. Set the **callback URL** to match `YOUVERSION_REDIRECT_URI`:
+   - Local: `http://localhost:3000/api/youversion/callback`
+   - Production: `https://your-domain.vercel.app/api/youversion/callback`
+3. Copy your **App Key** into `YOUVERSION_APP_KEY` in `.env.local`
+4. Run the updated schema in Supabase (adds `youversion_refresh_token` column if missing):
+```sql
+ALTER TABLE parent_profiles ADD COLUMN IF NOT EXISTS youversion_refresh_token TEXT;
+```
+
+### 6. Run Locally
 ```bash
 npm run dev
 # Open http://localhost:3000

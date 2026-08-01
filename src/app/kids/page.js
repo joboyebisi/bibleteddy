@@ -62,7 +62,7 @@ const TRIVIA_QUESTIONS = [
 
 export default function KidsAdventurePage() {
   const router = useRouter();
-  const { stories, curatedVideos, activeChild, playSquish, playSuccess, addSeeds, logVerseCompletion } = useApp();
+  const { stories, curatedVideos, activeChild, verseOfDay, playSquish, playSuccess, addSeeds, logVerseCompletion } = useApp();
 
   // Adventure Map Active Pin
   const [selectedNode, setSelectedNode] = useState(stories[0]);
@@ -194,7 +194,14 @@ export default function KidsAdventurePage() {
           <p className="text-sm font-semibold max-w-xl leading-relaxed mb-4" style={{ color: "#705d00" }}>
             Welcome back, <span className="font-black">{activeChild?.name || "Explorer"}</span>! Travel through timeless Scripture stories, collect Golden Stars, and unlock heavenly Faith Badges!
           </p>
-          <div className="flex gap-2 flex-wrap">
+          {verseOfDay?.text && (
+            <div className="mt-3 p-3 rounded-xl border text-sm font-medium max-w-xl"
+              style={{ background: "rgba(255,255,255,0.85)", borderColor: "rgba(255,102,0,0.3)", color: "#544600" }}>
+              <span className="font-black text-[#ff6600]">YouVersion Verse of the Day — {verseOfDay.reference}</span>
+              <p className="mt-1 italic">&ldquo;{verseOfDay.text}&rdquo;</p>
+            </div>
+          )}
+          <div className="flex gap-2 flex-wrap mt-3">
             <span className="px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-1"
               style={{ background: "#705d00", color: "#ffd700" }}>
               <span className="material-symbols-outlined text-sm">celebration</span>

@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS parent_profiles (
   email TEXT NOT NULL,
   display_name TEXT,
   youversion_user_id TEXT,        -- Optional YouVersion linked account
-  youversion_access_token TEXT,  -- OAuth token for YouVersion API
+  youversion_access_token TEXT,  -- OAuth access token for YouVersion API
+  youversion_refresh_token TEXT, -- OAuth refresh token
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

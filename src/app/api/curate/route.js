@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 /**
  * POST /api/curate
- * Video2App Engine: Parses a YouTube video URL to extract its topic using Gemini,
- * then generates AI quiz checkpoints using Gloo AI Studio (with Gemini fallback).
+ * Video2App Engine: Uses Gemini video understanding on YouTube URLs,
+ * then generates AI quiz checkpoints via Gloo (Gemini fallback).
  *
  * Body: { youtubeUrl: string, topic?: string }
  */
@@ -17,17 +17,18 @@ export async function POST(request) {
   }
 
   const geminiKey = process.env.GEMINI_API_KEY;
-  const glooKey = process.env.GLOO_API_KEY;
-
-  // Extract YouTube ID
   const youtubeId = extractYouTubeId(youtubeUrl || "");
+  const fullYoutubeUrl = youtubeId
+    ? `https://www.youtube.com/watch?v=${youtubeId}`
+    : youtubeUrl;
 
-  // Step 1: Use Gemini to extract topic/title from the YouTube URL
   let topic = manualTopic;
   let storyTitle = manualTopic || "Bible Story";
   let extractedVerse = "";
+  let videoSummary = "";
 
-  if (geminiKey && youtubeId) {
+  // Step 1: Gemini video understanding (YouTube URL input)
+  if (geminiKey && fullYoutubeUrl) {
     try {
       const extractRes = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
@@ -36,19 +37,28 @@ export async function POST(request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{
-              parts: [{
-                text: `You are analyzing a children's Bible animation video from YouTube.
-Video ID: "${youtubeId}"
-Video URL: "${youtubeUrl || ""}"
-${manualTopic ? `Provided topic hint: "${manualTopic}"` : ""}
+              parts: [
+                {
+                  file_data: {
+                    file_uri: fullYoutubeUrl,
+                  },
+                },
+                {
+                  text: `You are analyzing a children's Bible animation video from YouTube.
+${manualTopic ? `Topic hint: "${manualTopic}"` : ""}
 
-Based on the URL and video ID, identify the Bible story being told.
-Known Superbook episode IDs:
+Watch and listen to this video carefully. Extract:
+1. The Bible story being told
+2. Key scripture references mentioned or implied
+3. Main moral/spiritual lesson for children ages 6-10
+4. 2-3 timestamp moments (MM:SS) where quiz questions would fit
+
+Known Superbook episodes (use if this matches):
 - 8m9gSjV6o2Y = The First Christmas (Luke 2, Isaiah 9:6)
-- l54IvPzqXJM = Miracles of Jesus (Mark 4:41, John 6:1-14)
+- l54IvPzqXJM = Miracles of Jesus (Mark 4:41)
 - 0o8NQBuneJM = The Last Supper (Luke 22:19)
 - J2Xod4D5UwQ = He Is Risen! (Matthew 28:6)
-- RG9_g772vK0 = David and Goliath (1 Samuel 17, Psalm 28:7)
+- RG9_g772vK0 = David and Goliath (1 Samuel 17)
 
 Return ONLY this JSON:
 {
@@ -56,14 +66,17 @@ Return ONLY this JSON:
   "topic": "Birth of Jesus in Bethlehem",
   "mainScripture": "Isaiah 9:6",
   "verseText": "For to us a child is born, to us a son is given.",
+  "videoSummary": "2-3 sentence summary of what happens in the video",
+  "keyMoments": ["00:25 - Bethlehem stable scene", "01:05 - Wise men arrive"],
   "badge": "Love",
   "era": "Gospels",
   "ageRecommendation": "all"
-}`
-              }]
+}`,
+                },
+              ],
             }],
-            generationConfig: { responseMimeType: "application/json" }
-          })
+            generationConfig: { responseMimeType: "application/json" },
+          }),
         }
       );
 
@@ -75,40 +88,55 @@ Return ONLY this JSON:
           storyTitle = extracted.storyTitle || storyTitle;
           topic = extracted.topic || topic;
           extractedVerse = extracted.mainScripture || "";
+          videoSummary = extracted.videoSummary || "";
         }
+      } else {
+        const errBody = await extractRes.text();
+        console.warn("Gemini video analysis failed:", extractRes.status, errBody.slice(0, 200));
       }
     } catch (e) {
-      console.warn("Gemini extraction error:", e.message);
+      console.warn("Gemini video extraction error:", e.message);
     }
-  } else if (youtubeId) {
-    // URL-based fallback matching
+  }
+
+  // Fallback: URL-based static matching if Gemini unavailable or failed
+  if (!topic && youtubeId) {
     const match = getStaticMatch(youtubeId, youtubeUrl, manualTopic);
     storyTitle = match.storyTitle;
     topic = match.topic;
     extractedVerse = match.verse;
   }
 
+  if (!topic) topic = manualTopic || "Faith and courage";
+
   // Step 2: Generate quiz checkpoints via Gloo (or Gemini fallback)
   try {
-    const quizRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/gloo/quiz`, {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const quizRes = await fetch(`${baseUrl}/api/gloo/quiz`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, verseRef: extractedVerse, storyTitle })
+      body: JSON.stringify({
+        topic,
+        verseRef: extractedVerse,
+        storyTitle,
+        videoSummary,
+      }),
     });
 
     const quizData = await quizRes.json();
 
     return NextResponse.json({
       story: {
-        id: youtubeId || ("custom_" + Date.now()),
+        id: youtubeId || `custom_${Date.now()}`,
         title: storyTitle,
-        desc: `An interactive Scripture journey through: ${topic}`,
+        desc: videoSummary || `An interactive Scripture journey through: ${topic}`,
         youtubeId,
         thumbnailUrl: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null,
         verse: extractedVerse,
         checkpoints: quizData.checkpoints || [],
-        source: quizData.source
-      }
+        source: quizData.source,
+        geminiAnalyzed: !!videoSummary,
+      },
     });
   } catch (err) {
     console.error("Curate route error:", err);
@@ -120,8 +148,8 @@ Return ONLY this JSON:
         youtubeId,
         thumbnailUrl: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null,
         verse: extractedVerse,
-        checkpoints: []
-      }
+        checkpoints: [],
+      },
     });
   }
 }
@@ -139,7 +167,7 @@ function extractYouTubeId(url) {
 }
 
 function getStaticMatch(youtubeId, url, topic) {
-  const urlLower = (url + " " + topic).toLowerCase();
+  const urlLower = `${url} ${topic}`.toLowerCase();
 
   if (youtubeId === "8m9gSjV6o2Y" || urlLower.includes("christmas")) {
     return { storyTitle: "Superbook: The First Christmas", topic: "Birth of Jesus", verse: "Isaiah 9:6" };

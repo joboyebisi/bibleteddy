@@ -7,6 +7,20 @@ import confetti from "canvas-confetti";
 
 const AppContext = createContext();
 
+/** Normalize DB curated_stories row to app story shape */
+function normalizeCuratedVideo(row) {
+  if (!row) return row;
+  const checkpoints = row.checkpoints || row.quiz_questions || [];
+  return {
+    ...row,
+    youtubeId: row.youtubeId || row.youtube_id || "",
+    thumbnailUrl: row.thumbnailUrl || row.thumbnail_url || (row.youtube_id ? `https://img.youtube.com/vi/${row.youtube_id}/hqdefault.jpg` : ""),
+    desc: row.desc || row.description || "",
+    checkpoints: Array.isArray(checkpoints) ? checkpoints : [],
+    quiz_questions: checkpoints,
+  };
+}
+
 // ── Default curated Superbook stories with map coordinates ──
 const DEFAULT_STORIES = [
   {
@@ -126,16 +140,42 @@ export const AppProvider = ({ children }) => {
           if (activeId) setActiveChildId(activeId);
           else if (kids.length > 0) setActiveChildId(kids[0].id);
           const videos = JSON.parse(localStorage.getItem(`btb_curated_${p.id}`) || "[]");
-          setCuratedVideos(videos);
+          setCuratedVideos(videos.map(normalizeCuratedVideo));
         }
       } catch (e) { /* silent */ }
       return;
     }
 
     setUser(authUser);
-    const p = { email: authUser.email, id: authUser.id, displayName: authUser.user_metadata?.full_name };
-    setParent(p);
-    localStorage.setItem("btb_parent", JSON.stringify(p));
+
+    // Load parent profile including YouVersion link status
+    let parentProfile = {
+      email: authUser.email,
+      id: authUser.id,
+      displayName: authUser.user_metadata?.full_name,
+      youversionLinked: false,
+    };
+
+    if (supabase) {
+      const { data: profile } = await supabase
+        .from("parent_profiles")
+        .select("display_name, youversion_user_id, email")
+        .eq("id", authUser.id)
+        .single();
+
+      if (profile) {
+        parentProfile = {
+          ...parentProfile,
+          email: profile.email || parentProfile.email,
+          displayName: profile.display_name || parentProfile.displayName,
+          youversionLinked: !!profile.youversion_user_id,
+          youversionUserId: profile.youversion_user_id,
+        };
+      }
+    }
+
+    setParent(parentProfile);
+    localStorage.setItem("btb_parent", JSON.stringify(parentProfile));
 
     if (!supabase) return;
 
@@ -158,7 +198,7 @@ export const AppProvider = ({ children }) => {
       .select("*")
       .eq("parent_id", authUser.id)
       .order("created_at", { ascending: false });
-    if (videos) setCuratedVideos(videos);
+    if (videos) setCuratedVideos(videos.map(normalizeCuratedVideo));
 
     // Subscribe to realtime child profile updates
     const channel = supabase
@@ -237,6 +277,11 @@ export const AppProvider = ({ children }) => {
       localStorage.setItem("btb_parent", JSON.stringify(p));
       setIsLoading(false);
     }
+  };
+
+  // ── Auth: Sign In with YouVersion (OAuth PKCE) ──
+  const handleYouVersionSignIn = async () => {
+    window.location.href = "/api/youversion/login?next=/onboarding/child";
   };
 
   // ── Auth: Sign In with Google ──
@@ -407,10 +452,10 @@ export const AppProvider = ({ children }) => {
     if (supabase && user) {
       const { data: inserted, error } = await supabase.from("curated_stories").insert(videoRecord).select().single();
       if (error) throw error;
-      setCuratedVideos(prev => [{ ...videoRecord, id: inserted.id, ...story }, ...prev]);
+      setCuratedVideos(prev => [normalizeCuratedVideo({ ...videoRecord, id: inserted.id, ...story }), ...prev]);
       return inserted;
     } else {
-      const vid = { ...videoRecord, ...story, id: "vid_" + Date.now() };
+      const vid = normalizeCuratedVideo({ ...videoRecord, ...story, id: "vid_" + Date.now() });
       setCuratedVideos(prev => [vid, ...prev]);
       localStorage.setItem(`btb_curated_${parent.id}`, JSON.stringify([vid, ...curatedVideos]));
       return vid;
@@ -459,6 +504,7 @@ export const AppProvider = ({ children }) => {
       signUp: handleSignUp,
       signIn: handleSignIn,
       signInWithGoogle: handleGoogleSignIn,
+      signInWithYouVersion: handleYouVersionSignIn,
       signOut: handleSignOut,
       // Child actions
       addChild: addChildProfile,
