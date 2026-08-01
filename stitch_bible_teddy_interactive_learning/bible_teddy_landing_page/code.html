@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bible Teddy - Faith is more than just watching</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#004d62",
+                        "tertiary": "#5c5d6e",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#e1e1f5",
+                        "tertiary-container": "#d8d8ec",
+                        "on-primary-container": "#705e00",
+                        "surface-tint": "#705d00",
+                        "secondary": "#0c6780",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface": "#fbf9f5",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "background": "#fbf9f5",
+                        "surface-container-low": "#f5f3ef",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeeea",
+                        "primary-container": "#ffd700",
+                        "secondary-container": "#9ae1ff",
+                        "inverse-primary": "#e9c400",
+                        "outline-variant": "#d0c6ab",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1b1c1a",
+                        "primary-fixed": "#ffe16d",
+                        "outline": "#7e775f",
+                        "on-tertiary-container": "#5c5e6e",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-dim": "#dbdad6",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary-fixed-dim": "#c5c5d8",
+                        "inverse-surface": "#30312e",
+                        "on-secondary-container": "#09657f",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-tertiary-fixed-variant": "#444655",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e4e2de",
+                        "on-surface-variant": "#4d4732",
+                        "on-tertiary-fixed": "#191b29",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-primary-fixed-variant": "#544600",
+                        "surface-bright": "#fbf9f5",
+                        "primary": "#705d00",
+                        "secondary-fixed": "#baeaff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "margin-desktop": "64px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-caps": ["Quicksand"],
+                        "display-lg-mobile": ["Quicksand"],
+                        "display-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "500"}],
+                        "label-caps": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #fbf9f5; }
+        .soft-neomorphism {
+            box-shadow: 0 20px 40px -15px rgba(112,93,0,0.15);
+        }
+        .squish-btn {
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 6px 0px #b89a00;
+            transition: all 0.2s ease;
+        }
+        .squish-btn:active {
+            transform: translateY(4px);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 2px 0px #b89a00;
+        }
+        .stained-glass-bg {
+            background: radial-gradient(circle at top left, rgba(255, 215, 0, 0.1), transparent),
+                        radial-gradient(circle at bottom right, rgba(154, 225, 255, 0.15), transparent);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, -15px); }
+            100% { transform: translate(0, 0px); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background stained-glass-bg min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile py-sm md:px-margin-desktop md:py-md bg-surface/80 backdrop-blur-xl transition-all duration-300">
+<div class="flex items-center gap-base">
+<span class="font-display-lg text-display-lg-mobile text-primary drop-shadow-sm">Bible Teddy</span>
+</div>
+<nav class="hidden md:flex gap-lg">
+<a class="text-primary border-b-4 border-primary rounded-full px-4 py-1 font-body-lg text-body-lg hover:scale-105 transition-transform duration-300 ease-out" href="#">Home</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg hover:scale-105 transition-transform duration-300 ease-out" href="#">Stories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-lg text-body-lg hover:scale-105 transition-transform duration-300 ease-out" href="#">Badges</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="hidden md:flex items-center gap-xs text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-colors">
+<span class="material-symbols-outlined">lock</span> Parent Gate
+            </button>
+<span class="material-symbols-outlined text-primary text-3xl cursor-pointer hover:scale-110 transition-transform">account_circle</span>
+</div>
+</header>
+<main class="pt-[100px] md:pt-[120px]">
+<!-- Hero Section -->
+<section class="px-margin-mobile md:px-margin-desktop py-xl md:py-xl flex flex-col md:flex-row items-center justify-between gap-xl">
+<div class="w-full md:w-1/2 flex flex-col gap-md text-center md:text-left animate-fade-in">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background">
+                    Faith is more than just <span class="text-primary italic">watching.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                    Turn screen time into prayer time with Bible Teddy. Let your little ones interact with God's word through a huggable experience.
+                </p>
+<div class="flex flex-col md:flex-row gap-md mt-sm items-center">
+<button class="squish-btn bg-primary-container text-on-primary-container font-headline-md text-headline-md px-10 py-5 rounded-full w-full md:w-auto">
+                        Get Started (For Parents)
+                    </button>
+<div class="flex items-center gap-xs text-on-surface-variant font-body-md text-body-md">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified</span>
+                        Parental Dashboard Included
+                    </div>
+</div>
+</div>
+<div class="w-full md:w-5/12 relative flex justify-center items-center">
+<div class="absolute inset-0 bg-secondary-container/20 blur-3xl rounded-full scale-125"></div>
+<div class="relative w-full aspect-square max-w-[500px] flex items-center justify-center">
+<img alt="Bible Teddy Mascot" class="w-full h-full object-contain floating z-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX654Vex9iHioTi86dUp3WTbzpAT89jvU0qJRqrSt4EZ3LD0wCbkQcX37Tf9Wk69d1Oz1HH2hueuYkH4_Oe-e8qgIA6CfmdTQa1c2BvNP23qe7qqD-l_z5OXOz0DBpHqAmlEr2ID7rdJG-_TmusbjaEmoL_wZ8VHOSNWqbYVy_YF-QpWL5Q4iRGRlF9kDEmdS7yUmP028WKHCpPW6eQwCzNtXHw0VnTPTaT_4djIuDBCQ4OFrW5AOIjw"/>
+<!-- Glass Orbs for aesthetic depth -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-fixed/30 backdrop-blur-md rounded-full border border-white/40"></div>
+<div class="absolute -bottom-10 -left-10 w-48 h-48 bg-secondary-fixed/20 backdrop-blur-md rounded-full border border-white/30"></div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="px-margin-mobile md:px-margin-desktop py-xl bg-surface-container-low rounded-t-xl md:rounded-t-[4rem]">
+<div class="max-w-6xl mx-auto flex flex-col gap-xl">
+<div class="text-center space-y-base">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Why Bible Teddy?</span>
+<h2 class="font-display-lg text-display-lg-mobile md:text-headline-md text-on-surface">Designed for Tiny Hearts</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Feature 1: Active Engagement -->
+<div class="bg-surface p-lg rounded-lg soft-neomorphism flex flex-col gap-md items-center text-center group hover:scale-[1.02] transition-transform">
+<div class="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Active Engagement</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Interactive videos that stop to ask questions, keeping children focused and involved in the biblical narrative.
+                        </p>
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden mt-sm">
+<div class="h-full bg-primary-container w-2/3 shadow-[0_0_10px_#ffd700]"></div>
+</div>
+</div>
+<!-- Feature 2: Scripture Fluency -->
+<div class="bg-surface p-lg rounded-lg soft-neomorphism flex flex-col gap-md items-center text-center group hover:scale-[1.02] transition-transform">
+<div class="w-20 h-20 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Scripture Fluency</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Direct YouVersion integration allows kids to memorize verses seamlessly through fun games and visual cues.
+                        </p>
+<div class="flex gap-xs mt-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary-container"></div>
+<div class="w-8 h-8 rounded-full bg-secondary-container"></div>
+<div class="w-8 h-8 rounded-full bg-primary-container"></div>
+</div>
+</div>
+<!-- Feature 3: Voice Match -->
+<div class="bg-surface p-lg rounded-lg soft-neomorphism flex flex-col gap-md items-center text-center group hover:scale-[1.02] transition-transform">
+<div class="w-20 h-20 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">Voice Match</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Speak verses out loud! Our AI listens and encourages children with gentle feedback as they recite the Word.
+                        </p>
+<div class="flex items-center gap-xs mt-sm text-secondary animate-pulse">
+<span class="material-symbols-outlined">graphic_eq</span>
+<span class="font-label-caps">Listening for Joy...</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Dynamic Bento Section -->
+<section class="px-margin-mobile md:px-margin-desktop py-xl">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter max-w-6xl mx-auto">
+<div class="md:col-span-8 bg-white p-lg rounded-lg soft-neomorphism relative overflow-hidden h-[400px]">
+<div class="absolute inset-0 bg-cover bg-center opacity-40" data-alt="A bright, cozy children's playroom with sunlight streaming through large windows. Bible Teddy is sitting on a soft rug next to a tablet showing a vibrant cartoon Bible story. The room is decorated in soft creams, yellows, and blues with plush toys and educational blocks around." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBNakkhLF2rxpTBkS9LSrWyDrCN6QhcGnchfnkSqlchzyislYOIZjIi-Mc3PLdCYC8IKQYi3Ocpm8Bqk5RMinZdHIuzj6SmgOFNnSLOpaBNwP9UDohjz7E1SQnSow_VD5DT_eVJ9CX3DInveN_TXAgPpffPo2SXkAAFqXSvbvoAtrW7f7MvznHyIsD9pNDfxZ9ZNfX1BIbCCwcBoJC-fa6GKr711rdNZiYbhj9m2Rz4oFc3E-z9mF3OuA')"></div>
+<div class="relative z-10 h-full flex flex-col justify-end">
+<h2 class="font-display-lg-mobile md:text-display-lg text-primary">Safe Haven Stories</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Every story is vetted by theologians and child psychologists for safety and spiritual growth.</p>
+</div>
+<div class="absolute top-6 right-6">
+<span class="material-symbols-outlined text-primary text-5xl opacity-30">auto_awesome</span>
+</div>
+</div>
+<div class="md:col-span-4 bg-secondary text-on-secondary p-lg rounded-lg soft-neomorphism flex flex-col justify-between">
+<div class="space-y-base">
+<span class="material-symbols-outlined text-4xl">format_image_left</span>
+<h3 class="font-headline-md text-headline-md">100% Ad-Free</h3>
+<p class="font-body-md text-body-md text-on-secondary/80">No distractions, no trackers. Just pure faith and fun for your little explorers.</p>
+</div>
+<button class="mt-md px-base py-sm bg-white/20 hover:bg-white/30 rounded-xl transition-colors font-label-caps">Learn About Safety</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col items-center gap-md text-center bg-surface-container-high rounded-t-xl mt-xl">
+<div class="flex flex-col items-center gap-xs">
+<span class="font-headline-md text-primary">Bible Teddy</span>
+<p class="text-on-surface-variant font-label-caps text-label-caps">Growing in Faith Together</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant/80 hover:text-primary transition-all font-label-caps text-label-caps" href="#">About Us</a>
+<a class="text-on-surface-variant/80 hover:text-primary transition-all font-label-caps text-label-caps" href="#">Safety Guide</a>
+<a class="text-on-surface-variant/80 hover:text-primary transition-all font-label-caps text-label-caps" href="#">Support</a>
+<a class="text-on-surface-variant/80 hover:text-primary transition-all font-label-caps text-label-caps" href="#">Privacy</a>
+</nav>
+<div class="flex gap-md mt-sm">
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
+<a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span class="material-symbols-outlined">mail</span></a>
+</div>
+<p class="text-on-surface-variant font-label-caps text-[12px] opacity-60">© 2024 Bible Teddy - Growing in Faith Together</p>
+</footer>
+<!-- Mobile Bottom Nav - Only on mobile -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface/90 backdrop-blur-xl flex justify-around py-sm z-50 border-t border-surface-container-high">
+<div class="flex flex-col items-center gap-xs text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-[10px]">Home</span>
+</div>
+<div class="flex flex-col items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-label-caps text-[10px]">Stories</span>
+</div>
+<div class="flex flex-col items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-label-caps text-[10px]">Badges</span>
+</div>
+<div class="flex flex-col items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-caps text-[10px]">Parent</span>
+</div>
+</nav>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.squish-btn').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'scale(0.96)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'scale(1)';
+            });
+        });
+
+        // Floating animation enhancement
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const heroImage = document.querySelector('.floating');
+            if (heroImage) {
+                heroImage.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
+</body></html>

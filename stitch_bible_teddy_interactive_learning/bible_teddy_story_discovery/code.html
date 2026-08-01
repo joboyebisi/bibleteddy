@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bible Teddy - Kid's Discovery Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#004d62",
+                        "tertiary": "#5c5d6e",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#e1e1f5",
+                        "tertiary-container": "#d8d8ec",
+                        "on-primary-container": "#705e00",
+                        "surface-tint": "#705d00",
+                        "secondary": "#0c6780",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface": "#fbf9f5",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "background": "#fbf9f5",
+                        "surface-container-low": "#f5f3ef",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeeea",
+                        "primary-container": "#ffd700",
+                        "secondary-container": "#9ae1ff",
+                        "inverse-primary": "#e9c400",
+                        "outline-variant": "#d0c6ab",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1b1c1a",
+                        "primary-fixed": "#ffe16d",
+                        "outline": "#7e775f",
+                        "on-tertiary-container": "#5c5e6e",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-dim": "#dbdad6",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary-fixed-dim": "#c5c5d8",
+                        "inverse-surface": "#30312e",
+                        "on-secondary-container": "#09657f",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-tertiary-fixed-variant": "#444655",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e4e2de",
+                        "on-surface-variant": "#4d4732",
+                        "on-tertiary-fixed": "#191b29",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-primary-fixed-variant": "#544600",
+                        "surface-bright": "#fbf9f5",
+                        "primary": "#705d00",
+                        "secondary-fixed": "#baeaff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "margin-desktop": "64px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-caps": ["Quicksand"],
+                        "display-lg-mobile": ["Quicksand"],
+                        "display-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "500"}],
+                        "label-caps": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fbf9f5;
+        }
+        .soft-neomorph-card {
+            background: white;
+            box-shadow: 0 20px 40px -15px rgba(112,93,0,0.15);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+        .soft-neomorph-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 30px 50px -10px rgba(112,93,0,0.25);
+        }
+        .squishy-button {
+            box-shadow: inset 2px 2px 4px rgba(255,255,255,0.4), inset -2px -2px 4px rgba(0,0,0,0.1), 0 4px 0 #b38600;
+            transition: all 0.2s active;
+        }
+        .squishy-button:active {
+            transform: translateY(2px);
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), 0 0px 0 #b38600;
+        }
+        .glow-track {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .stained-glass-bubble {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        @keyframes pulse-glow {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0.8; }
+        }
+        .pulse-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile py-sm md:px-margin-desktop md:py-md bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(112,93,0,0.15)]">
+<div class="flex items-center gap-base">
+<span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary drop-shadow-sm">Bible Teddy</span>
+</div>
+<nav class="hidden md:flex gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-headline-md text-headline-md" href="#">Home</a>
+<a class="text-primary border-b-4 border-primary rounded-full px-4 py-1 font-headline-md text-headline-md" href="#">Stories</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-headline-md text-headline-md" href="#">Badges</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="bg-primary-container text-on-primary-container px-4 py-2 rounded-full font-label-caps text-label-caps hover:scale-105 transition-transform active:scale-95">
+                Parent Gate
+            </button>
+<span class="material-symbols-outlined text-primary text-3xl cursor-pointer">account_circle</span>
+</div>
+</header>
+<div class="flex pt-32 min-h-screen">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col w-64 h-[calc(100vh-80px)] fixed left-0 top-20 py-md gap-base bg-surface-container-lowest shadow-[20px_0_40px_-15px_rgba(112,93,0,0.1)] rounded-r-lg z-40">
+<div class="px-md mb-md">
+<div class="flex items-center gap-sm p-base bg-surface-container rounded-xl">
+<div class="w-12 h-12 rounded-full bg-primary-fixed overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A friendly, smiling cartoon teddy bear with soft brown fur, wearing a colorful stained-glass patterned robe. He has warm, welcoming eyes and a gentle expression. The background is a soft cream with playful golden sparkles around his head, creating a sense of joy and safety." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7rIEXlLkKPkulTvRH1Tn9-8IdVomkRBc-ARN592x0vsfQ7teCym97XdKTadRvBTi_F4rJGjH-CddkF1KTXz_VcWuclNbSDLgoHpXftmR2pjItEfSN7gLn8Yb18wB7Uxsp-JxPLIY7hzyzN25WTsRqiDXy-FI4Tk_lGViG-NoPBsyv3Ke5RXXUEBZbR9wZ6Jl-0uqHaVGaZB1qCkEDQfhiXtLem3X49wMdMhVyTuboNWyWQOnNhf619Q"/>
+</div>
+<div>
+<h3 class="font-headline-md text-primary text-base">Let's explore!</h3>
+<p class="font-body-md text-on-surface-variant text-xs">Faith Adventure</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-sm py-sm px-md mx-2 bg-primary-container text-on-primary-container rounded-xl shadow-inner group" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-lg text-body-lg">Adventures</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-md mx-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all group" href="#">
+<span class="material-symbols-outlined">music_note</span>
+<span class="font-body-lg text-body-lg">Music</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-md mx-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all group" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-body-lg text-body-lg">Badges</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-md mx-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all group" href="#">
+<span class="material-symbols-outlined">child_care</span>
+<span class="font-body-lg text-body-lg">Friends</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-md mx-2 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all group" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-body-lg text-body-lg">Parent Hub</span>
+</a>
+</nav>
+<div class="mt-auto px-md">
+<button class="w-full py-md bg-secondary text-on-secondary rounded-xl font-headline-md text-headline-md squishy-button flex items-center justify-center gap-base">
+<span class="material-symbols-outlined">star</span>
+                    New Lesson!
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 px-margin-mobile md:px-margin-desktop pb-xl">
+<!-- Hero Header Section -->
+<section class="relative mb-xl bg-secondary-container/30 rounded-xl p-lg flex flex-col md:flex-row items-center gap-lg overflow-hidden border-4 border-white shadow-xl">
+<div class="relative z-10 flex-1">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-secondary mb-base">Discovery Garden</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-md">Every story is a new adventure waiting for you. Choose a hero or follow Jesus' journeys!</p>
+<div class="flex gap-sm">
+<span class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-full font-label-caps text-label-caps shadow-sm">Daily Quest: Completed!</span>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed px-md py-sm rounded-full font-label-caps text-label-caps shadow-sm">3 New Stories</span>
+</div>
+</div>
+<div class="relative z-10 w-48 h-48 shrink-0">
+<div class="absolute -top-4 -right-4 w-full h-full bg-primary-container rounded-full pulse-glow -z-10"></div>
+<img alt="Bible Teddy Mascot" class="w-full h-full object-contain filter drop-shadow-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX654Vex9iHioTi86dUp3WTbzpAT89jvU0qJRqrSt4EZ3LD0wCbkQcX37Tf9Wk69d1Oz1HH2hueuYkH4_Oe-e8qgIA6CfmdTQa1c2BvNP23qe7qqD-l_z5OXOz0DBpHqAmlEr2ID7rdJG-_TmusbjaEmoL_wZ8VHOSNWqbYVy_YF-QpWL5Q4iRGRlF9kDEmdS7yUmP028WKHCpPW6eQwCzNtXHw0VnTPTaT_4djIuDBCQ4OFrW5AOIjw"/>
+<div class="absolute -bottom-8 -left-12 bg-white p-base rounded-2xl shadow-lg border-2 border-primary-fixed w-48 text-center rotate-[-3deg]">
+<p class="font-body-md text-body-md text-primary font-bold">"Which story should we explore today?"</p>
+</div>
+</div>
+<!-- Atmospheric background element -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+</section>
+<!-- Hero Stories Section -->
+<section class="mb-xl">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Hero Stories</h2>
+</div>
+<a class="font-label-caps text-label-caps text-primary hover:underline" href="#">See All Heroes</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Hero Card: David -->
+<div class="soft-neomorph-card rounded-xl overflow-hidden flex flex-col group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A brave young shepherd boy named David standing in a lush green valley with a slingshot in his hand. The art style is vibrant and soft, with large expressive eyes and bright colors. Behind him is a soft blue sky with fluffy white clouds, and the lighting is warm and sunny, conveying courage and faith." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDkrjLF76DxLGFtdmP2YKtIIrOTj_don_NgujVlC15PwjFJmB5uBD33f7XDLZLN9FnHuxw2jZHsAl9xDFzywjRXMjwACHtycX-ChReIldhyFGRkWgImdbr7-OqEyCUvThorkp4BMvZiycWMdn1lBxiYGsS2_SFMRdZnkDiR-6w7GzuyKAnF_3EHsBiEmzx-Z74yhnuYSTfyHIkyyN8oI8Z-r-TJQSlx8y5d6I2VsXAILmPreBs3c9-ig"/>
+<div class="absolute top-sm right-sm bg-white/90 backdrop-blur-sm p-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="p-md bg-white flex flex-col gap-sm">
+<h3 class="font-headline-md text-headline-md text-secondary">David's Big Heart</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">The little shepherd who became a great king!</p>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden mt-base">
+<div class="bg-primary h-full glow-track" style="width: 40%"></div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant/60">40% Read</span>
+</div>
+</div>
+<!-- Hero Card: Esther -->
+<div class="soft-neomorph-card rounded-xl overflow-hidden flex flex-col group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A beautiful and brave Queen Esther wearing a golden crown and a colorful stained-glass patterned royal robe. She stands in a magnificent Persian palace balcony with glowing lanterns in the background. The mood is royal yet gentle, using soft pinks, purples, and gold tones to create a sense of wonder and importance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSFUDPH2EoBQ74O4zUhP-9BUY32dZPCUAqlNs4JqCFS5zDl9YrNQ259_aNc2VGeplNGY4_Bcpn3Jx6xqhMyrmPk8UAYxJiWAd_GuIy2iuxTuxgxxnsZ10nbzfeKR1sXsjd3CZU0brUVGa32iQ7--nvjTvpJS_DA2Z2eX5gkwWjzO3_xnrDSJ-ZAhNiT42bHzTIaIjT1J7y8_0hH69Y44-43Ac_SDNofwh1UV7rZtM3Ho1ZmuCE4IJ-YQ"/>
+<div class="absolute top-sm right-sm bg-white/90 backdrop-blur-sm p-xs rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+</div>
+<div class="p-md bg-white flex flex-col gap-sm">
+<h3 class="font-headline-md text-headline-md text-secondary">Brave Queen Esther</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">How a girl's courage saved all her friends.</p>
+<button class="mt-base py-sm bg-primary-container text-on-primary-container rounded-xl font-label-caps text-label-caps squishy-button">Start Adventure</button>
+</div>
+</div>
+<!-- Hero Card: Paul -->
+<div class="soft-neomorph-card rounded-xl overflow-hidden flex flex-col group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="The apostle Paul on a bright, sunny ship sailing across a sparkling blue sea. He is holding a scroll and talking to friends. The illustration style is soft and friendly, with round shapes and bright, saturated colors. Sunlight reflects off the waves like small diamonds, creating a cheerful maritime adventure feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIJbRKW94auo1xY2FSVM1YzrqbXpY4Xkl8Fmq9LDOVMGelUh6MtsWtCQpgbdNOHOIXwSx1LZ8DXof09t13-uDsI__0UQysEZEdlgnhAaMCJ-EpNlIn45s6drTbEdPA3lWc6mpBSyScvGwAcL8NBePkVKu4qW-lr6PGn2RU3IKdAYduoQPCESFvp4yfo2DGKbPCfXFJ7Wn-nhoj0lbkdmXw9hk61NAG6h5INtBDMHw_lDX1_Ivvkp9RZw"/>
+</div>
+<div class="p-md bg-white flex flex-col gap-sm">
+<h3 class="font-headline-md text-headline-md text-secondary">Paul's Travels</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Journeying across the sea to share great news!</p>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-tertiary">lock</span>
+<span class="font-label-caps text-label-caps text-tertiary">Unlock with 5 Badges</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Life of Jesus Section -->
+<section>
+<div class="flex items-center gap-sm mb-md">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Life of Jesus</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Feature Card: Good Samaritan -->
+<div class="soft-neomorph-card rounded-xl overflow-hidden flex flex-col md:flex-row h-full group cursor-pointer">
+<div class="md:w-1/2 h-64 md:h-auto overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A friendly scene from the Good Samaritan story, showing a traveler helping a friend on a sunny dirt path. The characters have soft, huggable appearances. The background features rolling green hills and a bright yellow sun. The colors are warm and earthy, emphasizing kindness and friendship in a gentle, accessible way for children." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB--6VfkMDzT31Ya1o3_xozlYpmEdOXaURp0GupHNqB6m33aIm83zQ0JCvbUqABt42EJyCONhy_A7CdMPfUbujkT3Th2S3HH5s4zePfawh8KZH5QCaULQlQSHZJ-OKyxyZtvnO395ffZ7X7ulNXrpu8egQKhxJsS4Ma4HO7b_vbCENTA5ab5eW6DBWyRHI9jn2dt7pXP8LU4kFXfSSMcxHmSKpCzMnUG-02he0N4sCL84jhzKMavTq2-A"/>
+</div>
+<div class="md:w-1/2 p-lg bg-surface-container-low flex flex-col justify-center">
+<div class="flex gap-base mb-sm">
+<span class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg font-label-caps text-[10px]">PARABLE</span>
+</div>
+<h3 class="font-display-lg-mobile text-display-lg-mobile text-primary mb-sm">The Good Samaritan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Learning to be a kind neighbor to everyone we meet!</p>
+<button class="py-md bg-secondary text-on-secondary rounded-full font-headline-md text-headline-md squishy-button">Listen Now</button>
+</div>
+</div>
+<!-- Feature Card: Prodigal Son -->
+<div class="soft-neomorph-card rounded-xl overflow-hidden flex flex-col md:flex-row h-full group cursor-pointer">
+<div class="md:w-1/2 h-64 md:h-auto overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A heartwarming scene of a father giving his son a big, warm hug outside a cozy, colorful cottage. The lighting is soft and golden, like a sunset. The art style is plush and rounded, with vibrant green grass and beautiful flowers. It feels safe, welcoming, and full of love, using a palette of warm oranges, yellows, and soft greens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuF_vlq8UzYWkUM34w4PdUZuHKfXV7PPUnsbcCij7SmxHZ_prazbQH5ndTgn24Esh11Pe3aLWxCQpRAYHRg3Ub4Wkt_8Gxg1SX8k7lM9ccXUzxXwvpTza7Rzviv6m32bGNNAM-1-EZJ4zhiKsmgqamWAE3fPusklPh3p3mpW6RYRolfezMtxA-lqnUfcXYsQAKqxYfU3dRzWvQa3ED_Z90-NOLHMqjDdTBST-KnOq1kHEspyIt1yahtA"/>
+</div>
+<div class="md:w-1/2 p-lg bg-surface-container-low flex flex-col justify-center">
+<div class="flex gap-base mb-sm">
+<span class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg font-label-caps text-[10px]">LOVE</span>
+</div>
+<h3 class="font-display-lg-mobile text-display-lg-mobile text-primary mb-sm">The Prodigal Son</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">A story about God's big hugs and forgiveness.</p>
+<button class="py-md bg-primary text-on-primary rounded-full font-headline-md text-headline-md squishy-button">Watch Story</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col items-center gap-md text-center bg-surface-container-high rounded-t-xl mt-xl">
+<div class="flex items-center gap-sm">
+<span class="font-headline-md text-headline-md text-primary">Bible Teddy</span>
+</div>
+<nav class="flex flex-wrap justify-center gap-md">
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">About Us</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Safety Guide</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Support</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Privacy</a>
+</nav>
+<p class="font-label-caps text-label-caps text-on-surface-variant">© 2024 Bible Teddy - Growing in Faith Together</p>
+</footer>
+<!-- Mobile Navigation Bar (Bottom) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-lg flex justify-around items-center px-md z-50 border-t border-surface-container-high shadow-lg">
+<a class="flex flex-col items-center gap-xs text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold">HOME</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="text-[10px] font-bold">STORIES</span>
+</a>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-lg flex items-center justify-center border-4 border-white active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-3xl">play_arrow</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-xs text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="text-[10px] font-bold">BADGES</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold">PROFILE</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.soft-neomorph-card').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1.03)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body></html>

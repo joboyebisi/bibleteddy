@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bible Teddy - Parent Dashboard</title>
+<!-- Google Fonts: Quicksand for the brand aesthetic -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .squish-effect:active {
+            transform: scale(0.96);
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1);
+        }
+        .soft-shadow {
+            box-shadow: 0 20px 40px -15px rgba(112, 93, 0, 0.15);
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fbf9f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d8d8ec;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#004d62",
+                        "tertiary": "#5c5d6e",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#e1e1f5",
+                        "tertiary-container": "#d8d8ec",
+                        "on-primary-container": "#705e00",
+                        "surface-tint": "#705d00",
+                        "secondary": "#0c6780",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface": "#fbf9f5",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "background": "#fbf9f5",
+                        "surface-container-low": "#f5f3ef",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeeea",
+                        "primary-container": "#ffd700",
+                        "secondary-container": "#9ae1ff",
+                        "inverse-primary": "#e9c400",
+                        "outline-variant": "#d0c6ab",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1b1c1a",
+                        "primary-fixed": "#ffe16d",
+                        "outline": "#7e775f",
+                        "on-tertiary-container": "#5c5e6e",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-dim": "#dbdad6",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary-fixed-dim": "#c5c5d8",
+                        "inverse-surface": "#30312e",
+                        "on-secondary-container": "#09657f",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-tertiary-fixed-variant": "#444655",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e4e2de",
+                        "on-surface-variant": "#4d4732",
+                        "on-tertiary-fixed": "#191b29",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-primary-fixed-variant": "#544600",
+                        "surface-bright": "#fbf9f5",
+                        "primary": "#705d00",
+                        "secondary-fixed": "#baeaff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "margin-desktop": "64px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-caps": ["Quicksand"],
+                        "display-lg-mobile": ["Quicksand"],
+                        "display-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["20px", { "lineHeight": "30px", "fontWeight": "500" }],
+                        "label-caps": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile py-sm md:px-margin-desktop md:py-md bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(112,93,0,0.15)]">
+<div class="flex items-center gap-sm">
+<span class="font-display-lg text-display-lg-mobile text-primary drop-shadow-sm">Bible Teddy</span>
+</div>
+<nav class="hidden md:flex gap-md items-center">
+<a class="text-on-surface-variant/80 hover:text-primary transition-colors font-headline-md text-headline-md px-4 py-1" href="#">Home</a>
+<a class="text-on-surface-variant/80 hover:text-primary transition-colors font-headline-md text-headline-md px-4 py-1" href="#">Stories</a>
+<a class="text-primary border-b-4 border-primary rounded-full px-4 py-1 font-headline-md text-headline-md" href="#">Parent Hub</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="material-symbols-outlined text-primary text-[32px] p-2 hover:bg-surface-container-high rounded-full transition-all">account_circle</button>
+</div>
+</header>
+<!-- Side Navigation Shell (Desktop) -->
+<aside class="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 pt-32 pb-md px-md gap-base bg-surface-container-lowest border-r-0 shadow-[20px_0_40px_-15px_rgba(112,93,0,0.1)] z-40">
+<div class="flex flex-col items-center mb-lg">
+<div class="w-20 h-20 rounded-full bg-primary-container p-1 shadow-md mb-xs">
+<img class="w-full h-full object-cover rounded-full" data-alt="A cheerful, plush teddy bear character with a friendly expression, wearing a colorful vest inspired by stained glass art. The bear is rendered in a soft, 3D claymation style with warm studio lighting, set against a clean cream background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzNaQWgKqAUzhBUjjHITOsTlqfcyA8VRcYaGSaJ7EuM6ID-MLwSTvJ8hrkxZAc7FOsbhQExGNaR_wb5SLkDaurCZghonYXM7qyDKFkPFTuX_vOQ_Wxb1TnPmppjLWPAeYRTNYpcLdXbSV7VfmOMHMr-aEff2ASoCeSbrcOv5SxWtFqEuLlvGxwd5X79lcixBjFbWdvdsh3qlVUzWbFTsMAdtHEi6og7dIXXvFNCOESjhRRXwox6ak-gg"/>
+</div>
+<p class="font-headline-md text-headline-md text-primary">Bible Teddy</p>
+<p class="font-body-md text-on-surface-variant/70">Let's explore!</p>
+</div>
+<div class="space-y-sm">
+<button class="w-full flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-lg text-body-lg">Adventures</span>
+</button>
+<button class="w-full flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all">
+<span class="material-symbols-outlined">music_note</span>
+<span class="font-body-lg text-body-lg">Music</span>
+</button>
+<button class="w-full flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-body-lg text-body-lg">Badges</span>
+</button>
+<button class="w-full flex items-center gap-sm px-md py-sm bg-primary-container text-on-primary-container rounded-xl shadow-inner">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-body-lg text-body-lg">Parent Hub</span>
+</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="md:pl-64 pt-32 pb-xl px-margin-mobile md:px-margin-desktop bg-surface-bright min-h-screen">
+<div class="max-w-5xl mx-auto space-y-xl">
+<!-- Header Greeting -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-xs">Parent Dashboard</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Oversee and enrich your child's spiritual growth journey.</p>
+</div>
+<div class="flex items-center gap-sm bg-tertiary-container/30 px-md py-sm rounded-lg border border-tertiary-container">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+<p class="font-label-caps text-label-caps text-on-secondary-container">Safe Mode: Active</p>
+</div>
+</section>
+<!-- Grid Layout for Dashboard Modules -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Progress Overview (Bento Large) -->
+<section class="md:col-span-8 bg-surface-container-lowest rounded-lg p-lg soft-shadow flex flex-col gap-lg border border-white">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">trending_up</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Progress Overview</h2>
+</div>
+<select class="bg-surface-container-low border-none rounded-full px-4 py-2 font-label-caps text-label-caps text-on-surface-variant focus:ring-primary">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-lg">
+<!-- Chart Mockup: Quiz Averages -->
+<div class="space-y-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Quiz Averages</p>
+<div class="h-40 flex items-end justify-between gap-2 px-sm">
+<div class="w-full bg-secondary-container rounded-t-lg h-[60%] hover:brightness-95 transition-all"></div>
+<div class="w-full bg-secondary-container rounded-t-lg h-[40%] hover:brightness-95 transition-all"></div>
+<div class="w-full bg-secondary-container rounded-t-lg h-[85%] hover:brightness-95 transition-all"></div>
+<div class="w-full bg-secondary-container rounded-t-lg h-[70%] hover:brightness-95 transition-all"></div>
+<div class="w-full bg-secondary-container rounded-t-lg h-[95%] hover:brightness-95 transition-all"></div>
+</div>
+<div class="flex justify-between font-label-caps text-label-caps text-on-surface-variant/60 px-sm">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span>
+</div>
+</div>
+<!-- Virtues Earned Counter -->
+<div class="space-y-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Virtues Earned</p>
+<div class="grid grid-cols-3 gap-sm">
+<div class="aspect-square bg-tertiary-container rounded-lg flex flex-col items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-tertiary text-3xl">favorite</span>
+<span class="font-label-caps text-[10px]">Love</span>
+</div>
+<div class="aspect-square bg-primary-container rounded-lg flex flex-col items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-primary text-3xl">light_mode</span>
+<span class="font-label-caps text-[10px]">Joy</span>
+</div>
+<div class="aspect-square bg-secondary-container rounded-lg flex flex-col items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-secondary text-3xl">psychology</span>
+<span class="font-label-caps text-[10px]">Wisdom</span>
+</div>
+<div class="aspect-square bg-surface-container-high rounded-lg flex items-center justify-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+<div class="aspect-square bg-surface-container-high rounded-lg flex items-center justify-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+<div class="aspect-square bg-surface-container-high rounded-lg flex items-center justify-center opacity-40">
+<span class="material-symbols-outlined text-on-surface-variant">lock</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Profile Switcher (Bento Side) -->
+<section class="md:col-span-4 bg-surface-container-lowest rounded-lg p-lg soft-shadow flex flex-col gap-md border border-white">
+<h2 class="font-headline-md text-headline-md text-on-surface">Kids Profiles</h2>
+<div class="space-y-sm">
+<!-- Profile Card Active -->
+<div class="flex items-center gap-md p-sm bg-secondary-container/20 rounded-xl border-2 border-secondary-container">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-secondary">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young boy with a joyful smile, wearing a yellow shirt, in a soft-focus garden setting, rendered in a bright and warm photographic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCt_5kJ_q8JUYs9fzEmAh_M3kyZYVRgbrJK4k24fTnSJlK3DnuOqoVLksi_D_bQmLMoGleYcRY_7ZcTdeYww2FTWLpmfBegzLARuHZebYTXZvjGAVBudzJs9Rpp6RJjBwAGgTrplDAAluNfmf9gwFt3c6QQmaQ3mO0Wev-3SXnyQf-fFqE9joq9lnGl2wLzNu0X4MXGc4UIhHpStNrpGXhJEZt1IQJtu2D6iBomC-VvR4JBMdVy9Zw9ow"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-headline-md text-secondary">Noah</p>
+<p class="font-body-md text-on-surface-variant/70">Level 12 • 45 Stars</p>
+</div>
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+</div>
+<!-- Profile Card Inactive -->
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-low rounded-xl transition-all cursor-pointer">
+<div class="w-12 h-12 rounded-full overflow-hidden grayscale">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young girl with pigtails and a bright smile, in a sunlit playroom, rendered in a professional and friendly lifestyle photographic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGNrRSpwEKRduI4HIUFKBo7XkTbLfLRgnlawQyBCueK-ZDQdqTRCMWrLqhtRM5d8r4pAJpDKEm7kk-rWs7jP-uShul6smwArspZ9VPNeISKm4a4cxZ1MSfTQnz-3-ciusFJtkuPZiOa1baJxVKoSjK500H-ly6FuCT3whsutUj-Q9zNA3WzlM2_CzlxF5YTIgTzJ_1niAEDB1tVj3J1EU21BtLCsy8pMrfCJfRNnsikBtSitw93CVFgA"/>
+</div>
+<div class="flex-1">
+<p class="font-headline-md text-headline-md text-on-surface-variant">Esther</p>
+<p class="font-body-md text-on-surface-variant/70">Level 8 • 22 Stars</p>
+</div>
+</div>
+<!-- Add Child Button -->
+<button class="w-full py-sm border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label-caps">Add Child</span>
+</button>
+</div>
+</section>
+<!-- Content Curation Module (Wide Section) -->
+<section class="md:col-span-12 bg-white rounded-lg p-lg soft-shadow border border-white">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-md mb-lg">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 bg-secondary-container rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">video_library</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Content Curation</h2>
+</div>
+<p class="font-body-md text-on-surface-variant max-w-md">Add YouTube videos from your favorite ministries and our AI will generate safe quizzes for your kids.</p>
+</div>
+<div class="flex flex-col sm:flex-row gap-md items-center">
+<div class="relative flex-1 w-full">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/40">link</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-2 border-outline-variant focus:border-secondary focus:ring-0 rounded-xl font-body-md transition-all" placeholder="Paste YouTube URL here (e.g. https://youtube.com/watch...)" type="text"/>
+</div>
+<button class="w-full sm:w-auto px-xl py-4 bg-secondary text-white rounded-full font-headline-md text-headline-md flex items-center justify-center gap-sm squish-effect shadow-lg shadow-secondary/20 whitespace-nowrap">
+<span class="material-symbols-outlined">auto_awesome</span>
+                            Generate Quiz
+                        </button>
+</div>
+<!-- Recent Curation Queue -->
+<div class="mt-lg pt-lg border-t border-surface-container">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-md uppercase tracking-widest">Recent Stories Added</p>
+<div class="flex flex-wrap gap-md">
+<div class="flex items-center gap-sm bg-surface-container-low p-sm rounded-lg pr-md border border-outline-variant/30">
+<div class="w-12 h-12 bg-black rounded-md overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80" data-alt="A vibrant landscape depicting a classic biblical story scene with David and Goliath, stylized in a modern digital watercolor animation style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbKfl9z7pijs1FcmxmAxBl3wRCidcmkR0w4fjmwBgM4Iuz_sWhi55-WHUYNdtXu93VeWzKAyx1neuAgJhJS0FQ75LQPxr2NcE9ZdxxWhzzXYHfhSotLI0NnM4ONOcgedIlGIPTehqpvggaEwVDtpa09f6xidHqEG_UyXfiijINSqNx-hVtJ6Uxo-gYxMSxVENcKckiV1CxZeYgKXgzfVW08JM4Y2ohBmsXlHBu2kH2eoCqUXtO_oOECg"/>
+<span class="absolute inset-0 flex items-center justify-center material-symbols-outlined text-white text-xs">play_circle</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">David &amp; Goliath</p>
+<p class="text-[12px] text-green-600 font-medium">Quiz Ready</p>
+</div>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low p-sm rounded-lg pr-md border border-outline-variant/30">
+<div class="w-12 h-12 bg-black rounded-md overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80" data-alt="An artistic rendering of Noah's Ark floating on gentle blue waves with a vibrant rainbow in the sky, in a soft pastel illustrative style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-kYztJRBJU22cbu6MwTykhYBVo52xPoJ1vOk1DzNxabnzzKGy6SAf3m98WpoCbN0o8SvfWzcZjcjig5_A3QWQw-l2AO91zNkdaIUmmZ_rQ57VKVS5U7k_pKXiHeLpl0chH4zWmNArGd73PFbG34jzZGJ8i3M-qFZA963jXiyx1myRGqnODv10p19VAlLga3JAdvqEQ4tQMThDJfPZe1ZU6P3cDyg9gL9cnn9dp5lWL11GB7w33TyT2g"/>
+<span class="absolute inset-0 flex items-center justify-center material-symbols-outlined text-white text-xs">play_circle</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">Noah's Journey</p>
+<p class="text-[12px] text-secondary font-medium animate-pulse">Generating...</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Safety & Settings Section -->
+<section class="md:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- YouVersion Sync -->
+<div class="bg-surface-container-high/50 rounded-lg p-lg border border-outline-variant/20 flex items-center gap-lg">
+<div class="w-16 h-16 bg-white rounded-xl flex items-center justify-center soft-shadow">
+<!-- Brand Identity Placeholder for YouVersion -->
+<span class="material-symbols-outlined text-primary text-4xl">book_2</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">YouVersion Account</h3>
+<p class="font-body-md text-on-surface-variant/80">Sync your Bible App plans to unlock Teddy Badges.</p>
+</div>
+<button class="px-md py-sm bg-white border border-outline-variant text-on-surface font-label-caps rounded-full hover:bg-primary-container hover:border-primary-container transition-all">Link Account</button>
+</div>
+<!-- App Settings Quick Toggle -->
+<div class="bg-tertiary-container/20 rounded-lg p-lg border border-tertiary-container/30 flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-tertiary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white">notifications_active</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-tertiary-container">Weekly Progress Report</h3>
+<p class="font-body-md text-on-surface-variant/80">Sent to your email every Sunday.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col items-center gap-md text-center bg-surface-container-high dark:bg-surface-container-highest rounded-t-xl mt-xl">
+<p class="font-headline-md text-primary">Bible Teddy</p>
+<nav class="flex gap-md flex-wrap justify-center">
+<a class="font-label-caps text-on-surface-variant/80 hover:text-primary transition-all" href="#">About Us</a>
+<a class="font-label-caps text-on-surface-variant/80 hover:text-primary transition-all" href="#">Safety Guide</a>
+<a class="font-label-caps text-on-surface-variant/80 hover:text-primary transition-all" href="#">Support</a>
+<a class="font-label-caps text-on-surface-variant/80 hover:text-primary transition-all" href="#">Privacy</a>
+</nav>
+<p class="font-label-caps text-on-surface-variant/60">© 2024 Bible Teddy - Growing in Faith Together</p>
+</footer>
+<!-- Simple Interactivity Script -->
+<script>
+        // Simple scale effect for dashboard interaction
+        document.querySelectorAll('.soft-shadow').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+                card.style.transition = 'transform 0.3s ease-out';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+
+        // Feedback for "Generate Quiz" button
+        const genBtn = document.querySelector('button.bg-secondary');
+        if (genBtn) {
+            genBtn.addEventListener('click', () => {
+                const originalContent = genBtn.innerHTML;
+                genBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span> Processing...';
+                setTimeout(() => {
+                    genBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Story Added!';
+                    setTimeout(() => {
+                        genBtn.innerHTML = originalContent;
+                    }, 2000);
+                }, 1500);
+            });
+        }
+    </script>
+</body></html>

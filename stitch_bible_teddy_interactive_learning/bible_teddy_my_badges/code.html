@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bible Teddy - Achievement Gallery</title>
+<!-- Google Fonts: Quicksand -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#004d62",
+                        "tertiary": "#5c5d6e",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#e1e1f5",
+                        "tertiary-container": "#d8d8ec",
+                        "on-primary-container": "#705e00",
+                        "surface-tint": "#705d00",
+                        "secondary": "#0c6780",
+                        "secondary-fixed-dim": "#89d0ed",
+                        "surface": "#fbf9f5",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1b1c1a",
+                        "background": "#fbf9f5",
+                        "surface-container-low": "#f5f3ef",
+                        "on-error": "#ffffff",
+                        "surface-container": "#efeeea",
+                        "primary-container": "#ffd700",
+                        "secondary-container": "#9ae1ff",
+                        "inverse-primary": "#e9c400",
+                        "outline-variant": "#d0c6ab",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1b1c1a",
+                        "primary-fixed": "#ffe16d",
+                        "outline": "#7e775f",
+                        "on-tertiary-container": "#5c5e6e",
+                        "on-secondary-fixed": "#001f29",
+                        "surface-dim": "#dbdad6",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary-fixed-dim": "#c5c5d8",
+                        "inverse-surface": "#30312e",
+                        "on-secondary-container": "#09657f",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-tertiary-fixed-variant": "#444655",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#e4e2de",
+                        "on-surface-variant": "#4d4732",
+                        "on-tertiary-fixed": "#191b29",
+                        "inverse-on-surface": "#f2f0ed",
+                        "on-primary-fixed-variant": "#544600",
+                        "surface-bright": "#fbf9f5",
+                        "primary": "#705d00",
+                        "secondary-fixed": "#baeaff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "48px",
+                        "xl": "80px",
+                        "margin-desktop": "64px",
+                        "md": "24px",
+                        "sm": "12px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-caps": ["Quicksand"],
+                        "display-lg-mobile": ["Quicksand"],
+                        "display-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "500"}],
+                        "label-caps": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f5;
+            overflow-x: hidden;
+        }
+        .soft-squish {
+            box-shadow: inset 4px 4px 8px rgba(255, 255, 255, 0.4), inset -4px -4px 8px rgba(0, 0, 0, 0.05);
+        }
+        .neomorphic-card {
+            box-shadow: 0 20px 40px -15px rgba(112, 93, 0, 0.15);
+        }
+        .badge-glow {
+            filter: drop-shadow(0 0 12px rgba(112, 93, 0, 0.2));
+        }
+        .hex-clip {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        .confetti-canvas {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+        }
+        .sun-pulse {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #ffd700); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px #ffd700); }
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile py-sm md:px-margin-desktop md:py-md bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(112,93,0,0.15)]">
+<div class="flex items-center gap-base">
+<span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary drop-shadow-sm">Bible Teddy</span>
+</div>
+<nav class="hidden md:flex gap-md">
+<a class="font-headline-md text-headline-md text-on-surface-variant hover:text-primary transition-colors hover:scale-105 duration-300" href="#">Home</a>
+<a class="font-headline-md text-headline-md text-on-surface-variant hover:text-primary transition-colors hover:scale-105 duration-300" href="#">Stories</a>
+<a class="font-headline-md text-headline-md text-primary border-b-4 border-primary rounded-full px-4 py-1" href="#">Badges</a>
+</nav>
+<div class="flex items-center gap-sm">
+<button class="hidden md:block bg-primary text-on-primary font-headline-md text-headline-md px-md py-xs rounded-full hover:scale-105 active:scale-95 transition-all">Parent Gate</button>
+<span class="material-symbols-outlined text-primary text-[32px] cursor-pointer">account_circle</span>
+</div>
+</header>
+<!-- Side Nav (Desktop) -->
+<aside class="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 py-md gap-base bg-surface-container-lowest shadow-[20px_0_40px_-15px_rgba(112,93,0,0.1)] pt-32">
+<div class="px-md mb-md">
+<div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mx-auto mb-xs overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="A cute, friendly Bible Teddy mascot with soft plush fur and large, warm brown eyes, wearing a tiny yellow vest and holding a small illustrated Bible. The character is set against a soft, creamy background with gentle, colorful stained-glass light fragments dancing around." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4uiJXN4Y06MAa1TlNVqHSMiWoim6F2HtusdQNNh2GuIgdEPnPxG-r8APatt2CZjLF5TNN95ZRVbq2PTq4SgWdFaZSM1kEsBqka8H4T-JKDxd7I2LJgrbX_WuUakPh8TeYfsRwTMNGmRPEeAn-gitAohIhAKoPMf7YlWYofCDg8rurUjHt-h3zWn46z1kNPobZ6ZNEGK4RuokvxThtN7KQx61-oNngS-GRmM0eCkUXS6k6QhzpCR6e7g"/>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary text-center">Let's explore!</h2>
+</div>
+<nav class="flex flex-col gap-xs">
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 transition-all" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="font-body-lg text-body-lg">Adventures</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 transition-all" href="#">
+<span class="material-symbols-outlined">music_note</span>
+<span class="font-body-lg text-body-lg">Music</span>
+</a>
+<a class="flex items-center gap-sm p-sm bg-primary-container text-on-primary-container rounded-xl mx-2 shadow-inner" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-body-lg text-body-lg">Badges</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 transition-all" href="#">
+<span class="material-symbols-outlined">child_care</span>
+<span class="font-body-lg text-body-lg">Friends</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 transition-all" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-body-lg text-body-lg">Parent Hub</span>
+</a>
+</nav>
+<div class="mt-auto px-md">
+<button class="w-full bg-secondary text-on-secondary font-headline-md text-headline-md py-sm rounded-xl hover:scale-[1.02] active:scale-98 transition-all shadow-lg">New Lesson!</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="md:pl-64 pt-32 pb-xl px-margin-mobile md:px-margin-desktop min-h-screen">
+<div class="max-w-5xl mx-auto">
+<!-- Hero Header Section -->
+<section class="flex flex-col md:flex-row items-center justify-between gap-lg mb-xl bg-surface-container-low p-lg rounded-xl neomorphic-card relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+<div class="z-10 flex-1">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-sm">Hero Gallery</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-md max-w-md">Look at all the light you've gathered! Every badge shows a piece of your wonderful journey with Jesus.</p>
+<div class="flex gap-base">
+<button class="bg-primary-container text-on-primary-container font-headline-md text-headline-md px-md py-sm rounded-full soft-squish border-b-4 border-primary/20 hover:scale-105 transition-transform flex items-center gap-xs">
+<span class="material-symbols-outlined">ios_share</span> Share with Family
+                        </button>
+</div>
+</div>
+<!-- Mascot Celebrating -->
+<div class="z-10 relative">
+<div class="w-48 h-48 md:w-64 md:h-64 rounded-full bg-white flex items-center justify-center p-base neomorphic-card animate-bounce duration-[2000ms]">
+<img alt="Mascot celebrating" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX654Vex9iHioTi86dUp3WTbzpAT89jvU0qJRqrSt4EZ3LD0wCbkQcX37Tf9Wk69d1Oz1HH2hueuYkH4_Oe-e8qgIA6CfmdTQa1c2BvNP23qe7qqD-l_z5OXOz0DBpHqAmlEr2ID7rdJG-_TmusbjaEmoL_wZ8VHOSNWqbYVy_YF-QpWL5Q4iRGRlF9kDEmdS7yUmP028WKHCpPW6eQwCzNtXHw0VnTPTaT_4djIuDBCQ4OFrW5AOIjw"/>
+</div>
+<!-- Streak Indicator -->
+<div class="absolute -bottom-4 -left-4 bg-white p-sm rounded-xl shadow-xl flex items-center gap-xs border-2 border-primary-container">
+<div class="sun-pulse bg-primary-container p-xs rounded-full">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">wb_sunny</span>
+</div>
+<div class="pr-xs">
+<p class="text-xs font-bold uppercase tracking-widest text-primary">Streak</p>
+<p class="text-xl font-bold text-on-surface">7 Days</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Badge Grid -->
+<section class="mb-xl">
+<div class="flex items-center justify-between mb-lg">
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-base">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span> 
+                        My Stained Glass Collection
+                    </h2>
+<button class="text-primary font-headline-md text-headline-md hover:underline">See All Badges</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-md md:gap-lg">
+<!-- Badge 1: Kindness -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-xl neomorphic-card p-md flex flex-col items-center justify-center transition-all duration-500 group-hover:-translate-y-2">
+<div class="w-full aspect-square hex-clip bg-gradient-to-br from-primary-container to-secondary-container mb-sm flex items-center justify-center p-sm badge-glow">
+<div class="w-full h-full bg-white/30 backdrop-blur-sm hex-clip flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A beautiful circular stained glass badge depicting a glowing heart held by soft hands. The colors are vibrant ruby reds and gold, with intricate black leading and a glass texture that reflects soft, divine light. Professional digital illustration style for kids." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4PYWp3SiM9l6wJvrBCNdqcBs6D2Y-hxAnk907a9QvjiQfIhzW-ZDQ_qPPoZVszgTBXmve83NfC4jBaIw5bFyxP2CrkS6xxy-9vCsBIYwxFpLGPISjcbwYhupfnHC4_iHL2tLiH_Og5SFEpZkMjTzzeHoPKrnE2nhIpBYuKoOkMQvJgxfwcFtvxrcXW9QBuybS8tpn1AvfoYLjxgG2G81FnUax3aGq3DcIiOrz5H-1M7Ybzx7mupBo6A"/>
+</div>
+</div>
+<span class="font-headline-md text-headline-md text-primary">Kindness</span>
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase">The Good Samaritan</span>
+</div>
+</div>
+<!-- Badge 2: Faith -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-xl neomorphic-card p-md flex flex-col items-center justify-center transition-all duration-500 group-hover:-translate-y-2">
+<div class="w-full aspect-square hex-clip bg-gradient-to-br from-secondary-container to-tertiary-container mb-sm flex items-center justify-center p-sm badge-glow">
+<div class="w-full h-full bg-white/30 backdrop-blur-sm hex-clip flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="An intricate hexagonal stained glass badge showing a tiny mustard seed growing into a huge, leafy tree. Emerald greens and deep browns dominate, with a shimmering golden aura. The light sparkles through the glass facets, creating a magical, safe atmosphere for children." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgRiWVWzpUL69a1bf5mQvP_b9uSzTgv8X5ObL-jScKKxSc06dfKX7r3ylkNe7HUYkC0CHTv3jSAjb1eiRRgbqYXeXCbexePgiTxUeVkrpLuOtBY6fY_W0YSmaU6VmGCIgudi_8wLDR4K009Wn1zAXJ-DxKHUNQvSrY66FoxWEDhw7VlpL7Uo7rLNy-Rwd3QaEkYThFc7vH1WthojTjytDFgwNhfm0sWzBUIiYPEZoHwFj8X4XhCk1YZg"/>
+</div>
+</div>
+<span class="font-headline-md text-headline-md text-primary">Faith</span>
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase">The Mustard Seed</span>
+</div>
+</div>
+<!-- Badge 3: Courage -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-xl neomorphic-card p-md flex flex-col items-center justify-center transition-all duration-500 group-hover:-translate-y-2">
+<div class="w-full aspect-square hex-clip bg-gradient-to-br from-error-container to-primary-container mb-sm flex items-center justify-center p-sm badge-glow">
+<div class="w-full h-full bg-white/30 backdrop-blur-sm hex-clip flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A round stained glass achievement badge featuring a brave little boy with a slingshot facing a distant mountain shadow. Colors include vibrant sapphire blues and fiery oranges. The style mimics thick, traditional stained glass with modern, soft lighting effects and glowing sparkles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWGOSFeEdk6T3Cl5E1HRKA68N-7K34fTAnXKY86WQaNcQoDsjEvPAnyCS84ed0j1KP-_dJiqli7qf4MuOprMvEBQUX86TrMAJUO2DYWPyoYVxUbwLcbfSIQC-kPlbvnjI_me-AxChbpNPeubgOYJqyqTZChnrKnxtbGOqLroK3CIAF-1wlrMEuQA13OTPW-RChzQjz4igD1ws-TiP8ttHcWYKL3KlfueP99ZiE7cxBXfyzaCunc35HlQ"/>
+</div>
+</div>
+<span class="font-headline-md text-headline-md text-primary">Courage</span>
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase">David &amp; Goliath</span>
+</div>
+</div>
+<!-- Badge 4: Locked -->
+<div class="group cursor-not-allowed opacity-60">
+<div class="aspect-square bg-surface-container-high rounded-xl p-md flex flex-col items-center justify-center border-2 border-dashed border-outline-variant grayscale">
+<div class="w-full aspect-square hex-clip bg-surface-container-highest mb-sm flex items-center justify-center">
+<span class="material-symbols-outlined text-[64px] text-outline">lock</span>
+</div>
+<span class="font-headline-md text-headline-md text-outline">Wisdom</span>
+<span class="text-xs font-bold text-outline-variant uppercase">Coming Soon!</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Virtue Trackers -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="bg-white p-lg rounded-xl neomorphic-card">
+<h3 class="font-headline-md text-headline-md text-secondary mb-md">Faith Progress</h3>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Daily Prayers</span>
+<span class="font-label-caps text-label-caps text-secondary">80%</span>
+</div>
+<div class="w-full bg-surface-container-high h-4 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[80%] rounded-full shadow-[0_0_15px_rgba(12,103,128,0.5)]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-xs">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Story Listening</span>
+<span class="font-label-caps text-label-caps text-secondary">45%</span>
+</div>
+<div class="w-full bg-surface-container-high h-4 rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[45%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white p-lg rounded-xl neomorphic-card flex flex-col justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-sm">Next Big Reward</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Complete "Noah's Ark" to unlock the <b>Rainbow Peace Badge</b>!</p>
+</div>
+<div class="mt-md p-md bg-primary-container/20 rounded-xl flex items-center gap-md">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-primary text-[32px]">military_tech</span>
+</div>
+<div>
+<p class="font-bold text-primary">Almost there!</p>
+<p class="text-sm text-on-surface-variant">Just 2 more stories left.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col items-center gap-md text-center bg-surface-container-high rounded-t-xl mt-xl">
+<div class="font-headline-md text-primary">Bible Teddy</div>
+<nav class="flex gap-md flex-wrap justify-center">
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">About Us</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Safety Guide</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Support</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant/80 hover:text-primary hover:underline transition-all" href="#">Privacy</a>
+</nav>
+<p class="font-label-caps text-label-caps text-on-surface-variant">© 2024 Bible Teddy - Growing in Faith Together</p>
+</footer>
+<!-- Confetti Canvas -->
+<canvas class="confetti-canvas" id="confetti"></canvas>
+<script>
+        // Micro-interaction for confetti on load or badge click
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 8 + 4;
+                this.speed = Math.random() * 3 + 2;
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 5 - 2.5;
+                this.color = ['#ffd700', '#9ae1ff', '#e1e1f5', '#ffdad6'][Math.floor(Math.random() * 4)];
+            }
+            update() {
+                this.y += this.speed;
+                this.angle += this.spin;
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        // Add "squish" effect click handling
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+    </script>
+</body></html>

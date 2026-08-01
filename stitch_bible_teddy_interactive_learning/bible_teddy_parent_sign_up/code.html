@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parent Onboarding - Bible Teddy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#5c5d6e",
+                    "surface-container-high": "#eae8e4",
+                    "on-surface-variant": "#4d4732",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#efeeea",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fbf9f5",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#705e00",
+                    "inverse-primary": "#e9c400",
+                    "secondary-fixed": "#baeaff",
+                    "secondary": "#0c6780",
+                    "outline-variant": "#d0c6ab",
+                    "secondary-fixed-dim": "#89d0ed",
+                    "on-secondary-fixed-variant": "#004d62",
+                    "tertiary-fixed": "#e1e1f5",
+                    "surface-bright": "#fbf9f5",
+                    "inverse-on-surface": "#f2f0ed",
+                    "tertiary-fixed-dim": "#c5c5d8",
+                    "surface-variant": "#e4e2de",
+                    "on-primary-fixed-variant": "#544600",
+                    "surface-tint": "#705d00",
+                    "primary": "#705d00",
+                    "background": "#fbf9f5",
+                    "on-tertiary-fixed-variant": "#444655",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e4e2de",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#221b00",
+                    "surface-dim": "#dbdad6",
+                    "primary-fixed-dim": "#e9c400",
+                    "primary-fixed": "#ffe16d",
+                    "on-secondary-fixed": "#001f29",
+                    "inverse-surface": "#30312e",
+                    "tertiary-container": "#d8d8ec",
+                    "secondary-container": "#9ae1ff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#ffd700",
+                    "on-background": "#1b1c1a",
+                    "on-tertiary-container": "#5c5e6e",
+                    "outline": "#7e775f",
+                    "on-tertiary-fixed": "#191b29",
+                    "surface-container-low": "#f5f3ef",
+                    "on-surface": "#1b1c1a",
+                    "on-secondary-container": "#09657f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "64px",
+                    "xs": "4px",
+                    "gutter": "20px",
+                    "sm": "12px",
+                    "xl": "80px",
+                    "base": "8px",
+                    "lg": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Quicksand"],
+                    "display-lg-mobile": ["Quicksand"],
+                    "label-caps": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "body-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-caps": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fbf9f5;
+            overflow-x: hidden;
+        }
+
+        .stained-glass-bg {
+            background: radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 80%, rgba(154, 225, 255, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(216, 216, 236, 0.1) 0%, transparent 100%);
+        }
+
+        .soft-neomorph {
+            box-shadow: 0 20px 40px rgba(112, 93, 0, 0.08), inset 4px 4px 8px rgba(255, 255, 255, 0.8);
+        }
+
+        .squish-btn {
+            box-shadow: 0 8px 0 #b28e00;
+            transition: all 0.1s ease-out;
+        }
+        .squish-btn:active {
+            box-shadow: 0 2px 0 #b28e00;
+            transform: translateY(6px);
+        }
+
+        .sparkle-accent {
+            position: absolute;
+            pointer-events: none;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .floating-teddy {
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .input-inset {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Top Navigation (Shell Implementation) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 backdrop-blur-xl bg-surface/80 shadow-[0_20px_20px_rgba(112,93,0,0.15)]">
+<div class="flex items-center gap-sm">
+<span class="font-display-lg-mobile md:font-display-lg text-primary tracking-tight">Bible Teddy</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-primary text-headline-md hover:scale-105 transition-transform duration-200" style="font-variation-settings: 'FILL' 0;">help</button>
+</div>
+</header>
+<main class="pt-24 pb-xl px-margin-mobile md:px-margin-desktop min-h-screen flex flex-col items-center stained-glass-bg overflow-hidden">
+<!-- Progress Stepper -->
+<div class="w-full max-w-md mt-lg mb-xl relative">
+<div class="flex justify-between items-center relative z-10">
+<!-- Step 1: Active -->
+<div class="flex flex-col items-center gap-xs">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white">1</div>
+<span class="font-label-caps text-label-caps text-primary">Account</span>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-xs">
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-outline flex items-center justify-center font-bold text-lg border-4 border-white">2</div>
+<span class="font-label-caps text-label-caps text-tertiary opacity-50">Profile</span>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-xs">
+<div class="w-12 h-12 rounded-full bg-surface-container-high text-outline flex items-center justify-center font-bold text-lg border-4 border-white">3</div>
+<span class="font-label-caps text-label-caps text-tertiary opacity-50">Theme</span>
+</div>
+</div>
+<!-- Progress Line Background -->
+<div class="absolute top-6 left-0 w-full h-2 bg-surface-container-high -z-0 rounded-full"></div>
+<!-- Progress Line Active -->
+<div class="absolute top-6 left-0 w-1/4 h-2 bg-primary-container -z-0 rounded-full transition-all duration-500"></div>
+</div>
+<div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-12 gap-lg items-center">
+<!-- Left Side: Teddy Message -->
+<div class="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left gap-md order-2 md:order-1">
+<div class="relative w-64 md:w-80 aspect-square floating-teddy">
+<div class="absolute inset-0 bg-secondary-container opacity-20 blur-3xl rounded-full"></div>
+<img alt="Bible Teddy Mascot" class="relative z-10 w-full h-full object-contain drop-shadow-2xl" src="https://lh3.googleusercontent.com/aida/AP1WRLtsUSMYuhpjdFGLANLTnEdgPsZzu9gHPu90ATFZnQALCd-cabqNLXaZS87PVCkJvUxQ0-y62loX9cWazOv_2iMdFjYqiH104xtfd6jW5EjGLifkaWExDJ2qg361pLNwS9nMuxUZDDpBP7zApRSN05C5X3RWGscBloKDQsM7dRce0ipe0-3kq83dMVYgIWMUcKNjrxdnMrjGvB79K8ihyMlDJWPKowPJOXKmZAw3pdgO-v7zz-AoWzaVGKBL"/>
+<!-- Sparkle Decorations -->
+<span class="material-symbols-outlined sparkle-accent text-primary-container top-0 right-0 text-display-lg" style="font-variation-settings: 'FILL' 1;">arrow_back_ios_new</span>
+<span class="material-symbols-outlined sparkle-accent text-secondary top-1/4 -left-8 text-headline-md" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="bg-white/80 glass-panel p-lg rounded-xl soft-neomorph border-2 border-primary-container/30 relative">
+<!-- Speech Bubble Tail -->
+<div class="hidden md:block absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white rotate-45 border-l-2 border-b-2 border-primary-container/30"></div>
+<h2 class="font-headline-md text-headline-md text-primary mb-sm">Welcome Home!</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                        I'm so glad you're here! Linking your YouVersion account helps me sync your family's favorite stories and see all the amazing scripture progress you make together.
+                    </p>
+</div>
+</div>
+<!-- Right Side: Sign-Up Form -->
+<div class="md:col-span-7 w-full">
+<div class="bg-white p-lg md:p-xl rounded-xl soft-neomorph border border-surface-variant flex flex-col gap-lg">
+<div class="text-center md:text-left">
+<h1 class="font-display-lg-mobile md:font-display-lg text-on-surface mb-xs">Join the Journey</h1>
+<p class="font-body-md text-body-md text-tertiary">Start your child's adventure into God's Word today.</p>
+</div>
+<!-- Primary Action: YouVersion -->
+<button class="squish-btn w-full bg-primary-container py-md px-lg rounded-full flex items-center justify-center gap-md group hover:brightness-105 transition-all">
+<span class="material-symbols-outlined text-on-primary-container text-headline-md" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="font-headline-md text-on-primary-container">Link YouVersion Account</span>
+</button>
+<!-- Divider -->
+<div class="flex items-center gap-md py-sm">
+<div class="h-px flex-1 bg-outline-variant"></div>
+<span class="font-label-caps text-label-caps text-outline uppercase">or sign up with email</span>
+<div class="h-px flex-1 bg-outline-variant"></div>
+</div>
+<!-- Email Form -->
+<form class="flex flex-col gap-md" onsubmit="return false;">
+<div class="flex flex-col gap-xs">
+<label class="font-label-caps text-label-caps text-primary ml-sm">Parent's Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">mail</span>
+<input class="w-full pl-12 pr-md py-md bg-surface-container-low rounded-lg border-2 border-transparent focus:border-primary-container focus:ring-0 font-body-md input-inset transition-all" placeholder="hello@example.com" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-caps text-label-caps text-primary ml-sm">Create a Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">lock</span>
+<input class="w-full pl-12 pr-md py-md bg-surface-container-low rounded-lg border-2 border-transparent focus:border-primary-container focus:ring-0 font-body-md input-inset transition-all" placeholder="Min. 8 characters" type="password"/>
+</div>
+</div>
+<label class="flex items-start gap-md cursor-pointer group mt-sm">
+<div class="relative flex items-center">
+<input class="peer h-6 w-6 rounded border-2 border-outline-variant text-primary focus:ring-primary-container focus:ring-offset-0" type="checkbox"/>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant leading-tight">
+                                I agree to the <a class="text-secondary font-bold hover:underline" href="#">Terms of Service</a> and <a class="text-secondary font-bold hover:underline" href="#">Privacy Policy</a>.
+                            </span>
+</label>
+<button class="mt-md w-full bg-secondary py-md rounded-full text-white font-headline-md shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all">
+                            Create Account
+                        </button>
+</form>
+<p class="text-center font-body-md text-body-md text-tertiary">
+                        Already have an account? <a class="text-primary font-bold hover:underline" href="#">Sign In</a>
+</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md bg-surface-container-low">
+<div class="flex flex-col items-center md:items-start gap-xs">
+<span class="font-headline-md text-primary">Bible Teddy</span>
+<p class="font-label-caps text-label-caps text-tertiary text-center md:text-left">© 2024 Bible Teddy. Safe &amp; Wonder-filled Learning.</p>
+</div>
+<nav class="flex flex-wrap justify-center gap-md">
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Parent Support</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Contact Us</a>
+</nav>
+</footer>
+<script>
+        // Subtle Mouse Sparkle Effect
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.95) {
+                const sparkle = document.createElement('span');
+                sparkle.className = 'material-symbols-outlined sparkle-accent text-primary-container';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                sparkle.style.fontSize = Math.random() * 20 + 10 + 'px';
+                sparkle.style.fontVariationSettings = "'FILL' 1";
+                sparkle.innerText = 'sparkles';
+                sparkle.style.zIndex = '100';
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 3000);
+            }
+        });
+    </script>
+</body></html>

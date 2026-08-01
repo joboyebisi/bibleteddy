@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bible Teddy - Child Profile Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#5c5d6e",
+                      "surface-container-high": "#eae8e4",
+                      "on-surface-variant": "#4d4732",
+                      "error-container": "#ffdad6",
+                      "surface-container": "#efeeea",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#fbf9f5",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#705e00",
+                      "inverse-primary": "#e9c400",
+                      "secondary-fixed": "#baeaff",
+                      "secondary": "#0c6780",
+                      "outline-variant": "#d0c6ab",
+                      "secondary-fixed-dim": "#89d0ed",
+                      "on-secondary-fixed-variant": "#004d62",
+                      "tertiary-fixed": "#e1e1f5",
+                      "surface-bright": "#fbf9f5",
+                      "inverse-on-surface": "#f2f0ed",
+                      "tertiary-fixed-dim": "#c5c5d8",
+                      "surface-variant": "#e4e2de",
+                      "on-primary-fixed-variant": "#544600",
+                      "surface-tint": "#705d00",
+                      "primary": "#705d00",
+                      "background": "#fbf9f5",
+                      "on-tertiary-fixed-variant": "#444655",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#e4e2de",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#221b00",
+                      "surface-dim": "#dbdad6",
+                      "primary-fixed-dim": "#e9c400",
+                      "primary-fixed": "#ffe16d",
+                      "on-secondary-fixed": "#001f29",
+                      "inverse-surface": "#30312e",
+                      "tertiary-container": "#d8d8ec",
+                      "secondary-container": "#9ae1ff",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#ffd700",
+                      "on-background": "#1b1c1a",
+                      "on-tertiary-container": "#5c5e6e",
+                      "outline": "#7e775f",
+                      "on-tertiary-fixed": "#191b29",
+                      "surface-container-low": "#f5f3ef",
+                      "on-surface": "#1b1c1a",
+                      "on-secondary-container": "#09657f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "xs": "4px",
+                      "gutter": "20px",
+                      "sm": "12px",
+                      "xl": "80px",
+                      "base": "8px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Quicksand"],
+                      "display-lg-mobile": ["Quicksand"],
+                      "label-caps": ["Quicksand"],
+                      "headline-md": ["Quicksand"],
+                      "body-md": ["Quicksand"],
+                      "body-lg": ["Quicksand"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-caps": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                      "body-lg": ["20px", {"lineHeight": "30px", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-shadow {
+            box-shadow: 0 20px 40px -15px rgba(112, 93, 0, 0.15);
+        }
+        .squish-effect:active {
+            transform: scale(0.96) translateY(2px);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .neomorphic-inset {
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.8);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .pulsing-glow {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Top Navigation Anchor (As per JSON) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 backdrop-blur-xl bg-surface/80 shadow-[0_20px_20px_rgba(112,93,0,0.15)]">
+<div class="font-display-lg-mobile md:font-display-lg text-primary tracking-tight">Bible Teddy</div>
+<div class="flex gap-md items-center">
+<span class="material-symbols-outlined text-primary cursor-pointer style_universal_hover" title="Help">help</span>
+<span class="material-symbols-outlined text-primary cursor-pointer style_universal_hover" title="Account">account_circle</span>
+</div>
+</header>
+<main class="pt-32 pb-xl px-margin-mobile md:px-margin-desktop max-w-[1024px] mx-auto">
+<!-- Progress Stepper -->
+<div class="mb-lg">
+<div class="flex justify-between items-center mb-base px-2">
+<span class="font-label-caps text-label-caps text-tertiary">Step 2 of 3</span>
+<span class="font-label-caps text-label-caps text-primary">Almost there!</span>
+</div>
+<div class="h-4 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full w-2/3 bg-primary-container pulsing-glow rounded-full transition-all duration-700 ease-out"></div>
+</div>
+</div>
+<!-- Header Section -->
+<div class="text-center mb-xl">
+<h1 class="font-display-lg-mobile md:font-display-lg text-on-surface mb-sm">Let’s Meet Your Hero</h1>
+<p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                Tell us about your little one so we can personalize their <strong>Hero Stories</strong> with language and adventures perfect for their age.
+            </p>
+</div>
+<!-- Onboarding Card (Glassmorphism + Bento Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-md">
+<!-- Left Panel: Child Info Form -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-md md:p-lg soft-shadow border border-white/50">
+<form class="space-y-lg" id="childProfileForm">
+<!-- Child Name -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-primary ml-1">Child's Name</label>
+<input class="w-full h-14 bg-surface-container rounded-lg border-2 border-outline-variant focus:border-primary focus:ring-0 font-body-lg px-md transition-all neomorphic-inset" placeholder="e.g. Samuel" type="text"/>
+</div>
+<!-- Child Age -->
+<div class="space-y-xs">
+<label class="font-label-caps text-label-caps text-primary ml-1">Child's Age</label>
+<div class="flex flex-wrap gap-sm">
+<!-- Age Chips -->
+<button class="age-chip px-md py-sm bg-surface-container rounded-full font-label-caps border-2 border-transparent hover:border-primary-container transition-all squish-effect" type="button">2-3</button>
+<button class="age-chip px-md py-sm bg-primary-container text-on-primary-container rounded-full font-label-caps border-2 border-primary transition-all squish-effect" type="button">4-5</button>
+<button class="age-chip px-md py-sm bg-surface-container rounded-full font-label-caps border-2 border-transparent hover:border-primary-container transition-all squish-effect" type="button">6-7</button>
+<button class="age-chip px-md py-sm bg-surface-container rounded-full font-label-caps border-2 border-transparent hover:border-primary-container transition-all squish-effect" type="button">8-10</button>
+</div>
+</div>
+<!-- Add Another Child Trigger -->
+<div class="pt-sm">
+<button class="flex items-center gap-xs text-secondary font-label-caps hover:underline transition-all" type="button">
+<span class="material-symbols-outlined">add_circle</span>
+                            Add Another Child
+                        </button>
+</div>
+</form>
+</div>
+<!-- Right Panel: Avatar Selection -->
+<div class="lg:col-span-5 flex flex-col gap-md">
+<div class="bg-secondary-container/30 backdrop-blur-md rounded-xl p-md border border-white/40 soft-shadow flex-grow">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-headline-md text-on-secondary-container">Choose an Avatar</h3>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="grid grid-cols-3 gap-sm">
+<!-- Avatar Option 1 (Selected) -->
+<div class="relative group cursor-pointer">
+<div class="w-full aspect-square rounded-full border-4 border-primary p-1 bg-white overflow-hidden transition-transform hover:scale-105">
+<img class="w-full h-full object-cover rounded-full" data-alt="A cute, soft plush teddy bear character dressed in ancient biblical shepherd robes, 3D render style with soft fur texture, warm golden lighting, child-friendly mascot design for a religious educational app, soft pastel background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDcC1eTj45Biyf3qeF1OThrhran9WZjt4WWMB3KZSxPliltJtV5qQ1CXHs40XqM9iokvLkRAAuW1zYRONG0HxIwCYM0363ZBz8xQAFL9bJBTroJj-b7TxzYW5x4NAiAbz9FLt8koRVach_g2CwHivut3MYbJoQ79voimaqIAjE9kGrGUIQlg6XuK7csFxMF_QW6SbsmRI3zIFXwqUDy3GfmpzJu04BZ8TOaCvO6q_oyA_noxg4PNupmw"/>
+</div>
+<div class="absolute -top-1 -right-1 bg-primary text-on-primary w-6 h-6 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+</div>
+<!-- Avatar Option 2 -->
+<div class="cursor-pointer">
+<div class="w-full aspect-square rounded-full border-4 border-transparent p-1 bg-white/50 overflow-hidden hover:border-secondary-container transition-transform hover:scale-105">
+<img class="w-full h-full object-cover rounded-full" data-alt="A friendly, cartoonish lion cub with a soft mane and big kind eyes, 3D plushie style, wearing a small crown, symbolizing the Lion of Judah, vibrant bright colors, soft studio lighting, high-quality digital art for kids." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAfGJ0M5B3HvWr7ztM6az1Qk7wU5moOKjVgWYli_7CAYsYSMKK2_BqKssgOoYHB0iZ3uL1ImxPtXjYJvzu0_kICy4-E86-FFN-cnpfwTaknIGds8uREczVLFtZmCIxUItOzn6em0obxYkEnqn5vm7PB0Hy9vHbOn4cwXwbmQoSR1ytQioY0zHb8K4Lxmda8yF1qupPghlwZDFlk7kG01YFJXqblOtRUaRMe9NNeZiGrkkBaAhan12m2A"/>
+</div>
+</div>
+<!-- Avatar Option 3 -->
+<div class="cursor-pointer">
+<div class="w-full aspect-square rounded-full border-4 border-transparent p-1 bg-white/50 overflow-hidden hover:border-secondary-container transition-transform hover:scale-105">
+<img class="w-full h-full object-cover rounded-full" data-alt="A gentle white lamb with soft woolly texture, wearing a colorful striped scarf, 3D character render, playful and innocent look, bright daylight illumination, stained glass color palette inspiration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWlwES_dbe3-I2Z4sA_SMAH-XZ_yAAWMBAmr4C38vVKwLU2VWXbOMj77QD_u3Qf0V_hCgkq0o8Zn_QNMhdsiq-non3xN2XZ9WrMZz_G2D2zSdNq-iGLjoiB-5tzXD-ug_21J0TlxFy8p7FnUwZUKTg8xy1sqxgEmc8cJ0StQlIutWyjeiY2M7A4LHmad8ePZbcBQO06NL0rg3M5FnQd5SA9r12slv9wXTVY5p20xX6kWqyCOZK0r9ELA"/>
+</div>
+</div>
+<!-- Avatar Option 4 -->
+<div class="cursor-pointer">
+<div class="w-full aspect-square rounded-full border-4 border-transparent p-1 bg-white/50 overflow-hidden hover:border-secondary-container transition-transform hover:scale-105">
+<img class="w-full h-full object-cover rounded-full" data-alt="A wise small owl mascot with glasses and a friendly smile, perched on a wooden staff, 3D digital art style, soft feathers, jewel-toned colors like sapphire and emerald, cozy atmosphere for a children's storybook app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOrjuwrtCgTJZoKQGjx_pw09NlsJZ7KhpNiYIcetG9GrxY4gRbeO78GDyJkkcOGCUIKBwcS1E6qap4CG2AmqkSeEl3Mg5RW_us6bKZL5zxRD31GIMhXFK5KErDvojYimJxS-IYrSmM35lQEq9zg67gZSfEZVbPbs7JNwEF_IYNyv_nDoRfgvvI1jnGkJAnSfQSG0KnX96DfXK-F2PBTbaO5vw_GwOnvNKEfEv8SFDZXLhd7yF8A9nQug"/>
+</div>
+</div>
+<!-- Avatar Option 5 -->
+<div class="cursor-pointer">
+<div class="w-full aspect-square rounded-full border-4 border-transparent p-1 bg-white/50 overflow-hidden hover:border-secondary-container transition-transform hover:scale-105">
+<img class="w-full h-full object-cover rounded-full" data-alt="A playful dove carrying an olive branch, stylized as a soft plush toy, 3D render, ethereal soft glow, pastel blue and white tones, friendly facial expressions for toddlers, bright and clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUnwX-IPYlgplmHcxED5dEJ-P5jAq-yY9gcVR-NYoli8z9BjmIn0vL4uBHC01p2omFPXhki8dt0Jfv6WeLXYf_KR7M5pLTzFPzDmcv98x_FPKPBlkH3X2FNE3NNGLEver7om9cVtiHGObsrNVuYoIRFziYcu4ru6M58G7V7hiI5GlzygN-pcq4bPJcp2MZIP4Lali_wGNqE1eBL5CZYsS3O1RclNjc3QLBiHj5-Jb323oNmj6DcgmqSw"/>
+</div>
+</div>
+<!-- Randomize -->
+<button class="w-full aspect-square rounded-full bg-surface-container flex flex-col items-center justify-center gap-1 hover:bg-primary-container transition-colors group">
+<span class="material-symbols-outlined text-primary group-hover:rotate-180 transition-transform duration-500">casino</span>
+<span class="text-[10px] font-label-caps">More</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Section -->
+<div class="mt-xl flex flex-col items-center gap-md">
+<button class="px-xl py-md bg-primary-container text-on-primary-container font-headline-md rounded-full soft-shadow squish-effect border-b-4 border-primary-fixed-dim min-w-[280px]">
+                Create Profile
+            </button>
+<p class="font-body-md text-tertiary">
+<span class="material-symbols-outlined align-middle mr-1 text-sm">security</span>
+                All child data is kept safe &amp; private.
+            </p>
+</div>
+</main>
+<!-- Footer (As per JSON) -->
+<footer class="w-full py-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md bg-surface-container-low">
+<div class="font-headline-md text-primary">Bible Teddy</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Parent Support</a>
+<a class="font-label-caps text-label-caps text-tertiary hover:text-primary underline transition-colors" href="#">Contact Us</a>
+</div>
+<div class="font-label-caps text-label-caps text-secondary text-center md:text-right">
+            © 2024 Bible Teddy. Safe &amp; Wonder-filled Learning.
+        </div>
+</footer>
+<!-- Interactive Layer: Atmospheric Particles -->
+<div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden opacity-40" id="particle-container"></div>
+<script>
+        // Micro-interaction: Particles for 'Stained Glass Sparkle' effect
+        const container = document.getElementById('particle-container');
+        const colors = ['#ffd700', '#baeaff', '#e1e1f5', '#ffd700'];
+        
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            const size = Math.random() * 8 + 4;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            particle.style.position = 'absolute';
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.backgroundColor = color;
+            particle.style.borderRadius = '2px'; // Square-ish like stained glass bits
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.top = `${Math.random() * 100}vh`;
+            particle.style.opacity = Math.random() * 0.5;
+            particle.style.filter = 'blur(1px)';
+            particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            container.appendChild(particle);
+            
+            // Basic float animation
+            animateParticle(particle);
+        }
+
+        function animateParticle(el) {
+            const duration = Math.random() * 10000 + 5000;
+            const destinationY = Math.random() * 100 - 50;
+            const destinationX = Math.random() * 100 - 50;
+            
+            el.animate([
+                { transform: 'translate(0, 0) rotate(0deg)' },
+                { transform: `translate(${destinationX}px, ${destinationY}px) rotate(180deg)` }
+            ], {
+                duration: duration,
+                direction: 'alternate',
+                iterations: Infinity,
+                easing: 'linear'
+            });
+        }
+
+        // Age Chip Interaction
+        document.querySelectorAll('.age-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.age-chip').forEach(c => {
+                    c.classList.remove('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                    c.classList.add('bg-surface-container');
+                    c.classList.remove('border-transparent');
+                });
+                this.classList.add('bg-primary-container', 'text-on-primary-container', 'border-primary');
+                this.classList.remove('bg-surface-container');
+            });
+        });
+    </script>
+</body></html>
