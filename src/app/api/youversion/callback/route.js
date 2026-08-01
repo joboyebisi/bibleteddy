@@ -67,7 +67,7 @@ function hashBootstrapHtml() {
 }
 
 async function completeLogin({
-  origin,
+  siteUrl,
   next,
   redirectUri,
   appKey,
@@ -98,7 +98,7 @@ async function completeLogin({
     const errText = await tokenRes.text();
     console.error("YouVersion token exchange failed:", tokenRes.status, errText);
     clearOAuthCookies(cookieStore);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=token_exchange_failed`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=token_exchange_failed`);
   }
 
   clearOAuthCookies(cookieStore);
@@ -111,7 +111,7 @@ async function completeLogin({
   const finalYvpId = youversionUserId || userInfo.yvp_id || userInfo.sub;
 
   if (!email) {
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=no_email`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=no_email`);
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -124,7 +124,7 @@ async function completeLogin({
       yv_name: displayName,
       yv_id: finalYvpId || "",
     });
-    return NextResponse.redirect(`${origin}${next}?${demoParams.toString()}`);
+    return NextResponse.redirect(`${siteUrl}${next}?${demoParams.toString()}`);
   }
 
   const supabase = createClient(supabaseUrl, serviceKey, {
@@ -151,7 +151,7 @@ async function completeLogin({
 
   if (createError && !userExists) {
     console.error("Supabase createUser error:", createError);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=account_create_failed`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=account_create_failed`);
   }
 
   let profileUserId = authUser?.id;
@@ -181,15 +181,15 @@ async function completeLogin({
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: { redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(next)}` },
+    options: { redirectTo: `${siteUrl}/api/auth/callback?next=${encodeURIComponent(next)}` },
   });
 
   if (linkError || !linkData?.properties?.hashed_token) {
     console.error("Magic link error:", linkError);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=session_failed`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=session_failed`);
   }
 
-  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${linkData.properties.hashed_token}&type=magiclink&redirect_to=${encodeURIComponent(`${origin}/api/auth/callback?next=${encodeURIComponent(next)}`)}`;
+  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${linkData.properties.hashed_token}&type=magiclink&redirect_to=${encodeURIComponent(`${siteUrl}/api/auth/callback?next=${encodeURIComponent(next)}`)}`;
 
   return NextResponse.redirect(verifyUrl);
 }
@@ -199,21 +199,20 @@ async function completeLogin({
  */
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
+  const { appKey, redirectUri: configRedirectUri, authBase, siteUrl } = getYouVersionConfig(origin);
 
   const cookieStore = await cookies();
   const storedState = cookieStore.get("yv_oauth_state")?.value;
   const codeVerifier = cookieStore.get("yv_code_verifier")?.value;
   const storedRedirectUri = cookieStore.get("yv_redirect_uri")?.value;
   const next = cookieStore.get("yv_oauth_next")?.value || "/parent";
-
-  const { appKey, redirectUri: configRedirectUri, authBase } = getYouVersionConfig({ origin });
   const redirectUri = storedRedirectUri || configRedirectUri;
 
   const error = searchParams.get("error");
   if (error) {
     clearOAuthCookies(cookieStore);
     return NextResponse.redirect(
-      `${origin}/onboarding/signup?error=${encodeURIComponent(error)}`
+      `${siteUrl}/onboarding/signup?error=${encodeURIComponent(error)}`
     );
   }
 
@@ -229,12 +228,12 @@ export async function GET(request) {
 
   if (!storedState || !returnedState || storedState !== returnedState) {
     clearOAuthCookies(cookieStore);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=invalid_state`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=invalid_state`);
   }
 
   if (!codeVerifier || !appKey) {
     clearOAuthCookies(cookieStore);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=oauth_config`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=oauth_config`);
   }
 
   const authCode = searchParams.get("code");
@@ -277,7 +276,7 @@ export async function GET(request) {
       if (cookieStore.get("yv_continue_attempted")?.value) {
         console.error("YouVersion state-only retry exhausted", Object.fromEntries(searchParams));
         clearOAuthCookies(cookieStore);
-        return NextResponse.redirect(`${origin}/onboarding/signup?error=no_auth_code`);
+        return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=no_auth_code`);
       }
       cookieStore.set("yv_continue_attempted", "1", {
         httpOnly: true,
@@ -296,7 +295,7 @@ export async function GET(request) {
     }
 
     return completeLogin({
-      origin,
+      siteUrl,
       next,
       redirectUri,
       appKey,
@@ -312,7 +311,7 @@ export async function GET(request) {
   } catch (err) {
     console.error("YouVersion callback error:", err);
     clearOAuthCookies(cookieStore);
-    return NextResponse.redirect(`${origin}/onboarding/signup?error=server_error`);
+    return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=server_error`);
   }
 }
 

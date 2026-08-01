@@ -7,7 +7,7 @@ import { getYouVersionConfig } from "@/lib/youversion/config";
  */
 export async function GET(request) {
   const { origin } = new URL(request.url);
-  const { redirectUri, siteUrl, appKey } = getYouVersionConfig({ origin });
+  const { redirectUri, siteUrl, appKey } = getYouVersionConfig(origin);
 
   return NextResponse.json({
     siteUrl,

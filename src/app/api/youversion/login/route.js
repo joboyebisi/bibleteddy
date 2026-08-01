@@ -8,17 +8,15 @@ import { getYouVersionConfig } from "@/lib/youversion/config";
  * Starts YouVersion OAuth PKCE flow — redirects to login.youversion.com
  */
 export async function GET(request) {
-  const { origin } = new URL(request.url);
-  const { appKey, redirectUri, authBase, scopes } = getYouVersionConfig({ origin });
+  const { searchParams } = new URL(request.url);
+  const { appKey, redirectUri, authBase, scopes, siteUrl } = getYouVersionConfig();
 
   if (!appKey) {
-    return NextResponse.json(
-      { error: "YOUVERSION_APP_KEY not configured" },
-      { status: 500 }
+    const next = searchParams.get("next") || "/parent";
+    return NextResponse.redirect(
+      `${siteUrl}/onboarding/signup?error=youversion_not_configured&hint=Set+YOUVERSION_APP_KEY+in+env`
     );
   }
-
-  const { searchParams } = new URL(request.url);
   const next = searchParams.get("next") || "/parent";
 
   const codeVerifier = generateCodeVerifier();

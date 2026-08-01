@@ -281,8 +281,11 @@ export const AppProvider = ({ children }) => {
   };
 
   // ── Auth: Sign In with YouVersion (OAuth PKCE) ──
-  const handleYouVersionSignIn = async () => {
-    window.location.href = "/api/youversion/login?next=/onboarding/child";
+  const handleYouVersionSignIn = () => {
+    const base =
+      (typeof window !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
+      (typeof window !== "undefined" ? window.location.origin : "");
+    window.location.href = `${base}/api/youversion/login?next=/onboarding/child`;
   };
 
   // ── Auth: Sign In with Google ──
