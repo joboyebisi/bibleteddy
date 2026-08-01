@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import VerseOfDayCard from "@/components/VerseOfDayCard";
 
 export default function ParentDashboardPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function ParentDashboardPage() {
     parent,
     kidsProfiles,
     activeChild,
+    deleteChild,
     selectChild,
     curatedVideos,
     achievements,
@@ -29,6 +31,7 @@ export default function ParentDashboardPage() {
   const [genProgress, setGenProgress] = useState(0);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [deletingChildId, setDeletingChildId] = useState(null);
 
   const handleCurateSubmit = async (e) => {
     e.preventDefault();
@@ -76,6 +79,26 @@ export default function ParentDashboardPage() {
   const handleProfileSelect = (id) => {
     playSquish();
     selectChild(id);
+  };
+
+  const handleDeleteChild = async (e, child) => {
+    e.stopPropagation();
+    const confirmed = window.confirm(
+      `Remove ${child.name}'s profile? Their seeds, badges, and progress will be permanently deleted.`
+    );
+    if (!confirmed) return;
+
+    playSquish();
+    setDeletingChildId(child.id);
+    setErrorMsg("");
+    try {
+      await deleteChild(child.id);
+      playSuccess();
+    } catch {
+      setErrorMsg("Could not delete this profile. Please try again.");
+    } finally {
+      setDeletingChildId(null);
+    }
   };
 
   const childAchievements = achievements.filter(
@@ -226,6 +249,8 @@ export default function ParentDashboardPage() {
             </div>
           </section>
 
+          <VerseOfDayCard compact />
+
           {/* Bento Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
             {/* Progress Overview (Bento Large) */}
@@ -336,6 +361,18 @@ export default function ParentDashboardPage() {
                           Age {k.age_group} • {k.seeds} Seeds
                         </p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteChild(e, k)}
+                        disabled={deletingChildId === k.id}
+                        className="p-2 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors cursor-pointer disabled:opacity-50"
+                        title={`Remove ${k.name}`}
+                        aria-label={`Remove ${k.name}`}
+                      >
+                        <span className="material-symbols-outlined text-lg">
+                          {deletingChildId === k.id ? "hourglass_empty" : "delete"}
+                        </span>
+                      </button>
                       {k.id === activeChild?.id && (
                         <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>
                           check_circle

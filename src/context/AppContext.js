@@ -6,6 +6,9 @@ import { authCallbackUrl } from "@/lib/siteUrl";
 import { supabase } from "@/lib/supabaseClient";
 import confetti from "canvas-confetti";
 import { buildAchievementCopy, generateShareToken, shareUrl } from "@/lib/achievements";
+import { normalizeCheckpoints } from "@/lib/checkpoints";
+import { guessYouTubeDuration } from "@/lib/youtube";
+import { pickMemoryStory } from "@/lib/storyMemoryVerse";
 
 const AppContext = createContext();
 
@@ -20,6 +23,15 @@ function normalizeCuratedVideo(row) {
     topic = t;
     verse = v;
   }
+  const durationSeconds =
+    row.durationSeconds ||
+    row.duration_seconds ||
+    guessYouTubeDuration(row.youtube_id || row.youtubeId);
+  const normalizedCheckpoints = normalizeCheckpoints(
+    Array.isArray(checkpoints) ? checkpoints : [],
+    durationSeconds,
+    { keyMoments: row.key_moments || row.keyMoments || [] }
+  );
   return {
     ...row,
     youtubeId: row.youtubeId || row.youtube_id || "",
@@ -27,9 +39,9 @@ function normalizeCuratedVideo(row) {
     desc: row.desc || row.description || "",
     verse,
     topic,
-    durationSeconds: row.durationSeconds || row.duration_seconds || 180,
-    checkpoints: Array.isArray(checkpoints) ? checkpoints : [],
-    quiz_questions: checkpoints,
+    durationSeconds,
+    checkpoints: normalizedCheckpoints,
+    quiz_questions: normalizedCheckpoints,
   };
 }
 
@@ -45,10 +57,10 @@ const DEFAULT_STORIES = [
     verse: "Isaiah 9:6", translationClassic: "For to us a child is born, to us a son is given; and the government shall be upon his shoulder. (Isaiah 9:6 ESV)",
     translationKids: "A child will be born to us. God will give a son to us. (Isaiah 9:6 ICB)",
     xPercent: 18, yPercent: 75, stars: 3, era: "Gospels (Ep 8)", mapIcon: "child_care",
-    youtubeId: "1fl9laM4ViM", durationSeconds: 150,
+    youtubeId: "1fl9laM4ViM", durationSeconds: 1500,
     checkpoints: [
-      { id: "cp-xm-1", timeSeconds: 25, title: "Bethlehem Stable", verseSnippet: "She wrapped him in cloths and placed him in a manger. (Luke 2:7)", question: { prompt: "Where was baby Jesus laid when He was born?", options: ["In a wooden manger in Bethlehem", "On a velvet throne", "In a fast chariot", "In a glass house"], correctAnswer: "In a wooden manger in Bethlehem", explanation: "Jesus was born in Bethlehem and laid humbly in a manger!" } },
-      { id: "cp-xm-2", timeSeconds: 65, title: "The Star of Bethlehem", verseSnippet: "We saw his star when it rose and have come to worship him. (Matthew 2:2)", question: { prompt: "What guided the Wise Men to find the baby king?", options: ["A bright glowing Star in the east", "A paper map", "A lighthouse", "A golden bird"], correctAnswer: "A bright glowing Star in the east", explanation: "God placed a magnificent star in the sky to guide the Magi!" } }
+      { id: "cp-xm-1", timePercent: 22, title: "Bethlehem Stable", verseSnippet: "She wrapped him in cloths and placed him in a manger. (Luke 2:7)", question: { prompt: "Where was baby Jesus laid when He was born?", options: ["In a wooden manger in Bethlehem", "On a velvet throne", "In a fast chariot", "In a glass house"], correctAnswer: "In a wooden manger in Bethlehem", explanation: "Jesus was born in Bethlehem and laid humbly in a manger!" } },
+      { id: "cp-xm-2", timePercent: 48, title: "The Star of Bethlehem", verseSnippet: "We saw his star when it rose and have come to worship him. (Matthew 2:2)", question: { prompt: "What guided the Wise Men to find the baby king?", options: ["A bright glowing Star in the east", "A paper map", "A lighthouse", "A golden bird"], correctAnswer: "A bright glowing Star in the east", explanation: "God placed a magnificent star in the sky to guide the Magi!" } }
     ]
   },
   {
@@ -61,10 +73,10 @@ const DEFAULT_STORIES = [
     verse: "Mark 4:41", translationClassic: "And they said to one another, 'Who then is this, that even wind and sea obey him?' (Mark 4:41 ESV)",
     translationKids: "They said to each other, 'Even the wind and the waves obey him!' (Mark 4:41 ICB)",
     xPercent: 32, yPercent: 45, stars: 2, era: "Gospels (Ep 9)", mapIcon: "water",
-    youtubeId: "EQXyhM592RU", durationSeconds: 180,
+    youtubeId: "EQXyhM592RU", durationSeconds: 1680,
     checkpoints: [
-      { id: "cp-m-1", timeSeconds: 30, title: "Calming the Storm", verseSnippet: "He got up, rebuked the wind and said, 'Quiet! Be still!' (Mark 4:39)", question: { prompt: "What words did Jesus speak to stop the storm?", options: ["Quiet! Be still!", "Rain come back later!", "Blow harder!", "Fly away!"], correctAnswer: "Quiet! Be still!", explanation: "Jesus commanded the wind and sea, and immediate calm followed!" } },
-      { id: "cp-m-2", timeSeconds: 85, title: "Feeding the 5,000", verseSnippet: "Taking the five loaves and the two fish and looking up to heaven, he gave thanks. (Luke 9:16)", question: { prompt: "How many loaves and fish fed five thousand people?", options: ["5 loaves and 2 fish", "100 apples", "1 loaf of bread", "20 grapes"], correctAnswer: "5 loaves and 2 fish", explanation: "Jesus blessed a boy's small lunch to feed thousands!" } }
+      { id: "cp-m-1", timePercent: 25, title: "Calming the Storm", verseSnippet: "He got up, rebuked the wind and said, 'Quiet! Be still!' (Mark 4:39)", question: { prompt: "What words did Jesus speak to stop the storm?", options: ["Quiet! Be still!", "Rain come back later!", "Blow harder!", "Fly away!"], correctAnswer: "Quiet! Be still!", explanation: "Jesus commanded the wind and sea, and immediate calm followed!" } },
+      { id: "cp-m-2", timePercent: 52, title: "Feeding the 5,000", verseSnippet: "Taking the five loaves and the two fish and looking up to heaven, he gave thanks. (Luke 9:16)", question: { prompt: "How many loaves and fish fed five thousand people?", options: ["5 loaves and 2 fish", "100 apples", "1 loaf of bread", "20 grapes"], correctAnswer: "5 loaves and 2 fish", explanation: "Jesus blessed a boy's small lunch to feed thousands!" } }
     ]
   },
   {
@@ -77,9 +89,9 @@ const DEFAULT_STORIES = [
     verse: "Luke 22:19", translationClassic: "And he took bread, gave thanks, broke it and gave it to them. (Luke 22:19 ESV)",
     translationKids: "Jesus took bread, gave thanks, broke it and said: 'Do this to remember me.' (Luke 22:19 ICB)",
     xPercent: 50, yPercent: 68, stars: 1, era: "Gospels (Ep 10)", mapIcon: "restaurant",
-    youtubeId: "0o8NQBuneJM", durationSeconds: 170,
+    youtubeId: "0o8NQBuneJM", durationSeconds: 1560,
     checkpoints: [
-      { id: "cp-ls-1", timeSeconds: 35, title: "Washing Disciples' Feet", verseSnippet: "I have set you an example that you should do as I have done for you. (John 13:15)", question: { prompt: "What humble act did Jesus do before eating supper?", options: ["Washed His disciples' feet", "Cooked a giant cake", "Bought golden shoes", "Slept on a couch"], correctAnswer: "Washed His disciples' feet", explanation: "Jesus showed that true leaders are humble servants!" } }
+      { id: "cp-ls-1", timePercent: 35, title: "Washing Disciples' Feet", verseSnippet: "I have set you an example that you should do as I have done for you. (John 13:15)", question: { prompt: "What humble act did Jesus do before eating supper?", options: ["Washed His disciples' feet", "Cooked a giant cake", "Bought golden shoes", "Slept on a couch"], correctAnswer: "Washed His disciples' feet", explanation: "Jesus showed that true leaders are humble servants!" } }
     ]
   },
   {
@@ -92,9 +104,9 @@ const DEFAULT_STORIES = [
     verse: "Matthew 28:6", translationClassic: "He is not here, for he has risen, as he said. Come, see the place where he lay. (Matthew 28:6 ESV)",
     translationKids: "Jesus is not here! He has risen from death, just as he promised! (Matthew 28:6 ICB)",
     xPercent: 68, yPercent: 35, stars: 1, era: "Gospels (Ep 11)", mapIcon: "wb_sunny",
-    youtubeId: "3F0rt2AiqJY", durationSeconds: 190,
+    youtubeId: "3F0rt2AiqJY", durationSeconds: 1620,
     checkpoints: [
-      { id: "cp-hr-1", timeSeconds: 40, title: "The Rolled Stone", verseSnippet: "He is not here; he has risen! (Luke 24:6)", question: { prompt: "What did Mary find when she arrived at the tomb?", options: ["The heavy stone was rolled away!", "The entrance was bricked shut", "A iron gate", "A sleeping lion"], correctAnswer: "The heavy stone was rolled away!", explanation: "God's power rolled away the massive stone!" } }
+      { id: "cp-hr-1", timePercent: 40, title: "The Rolled Stone", verseSnippet: "He is not here; he has risen! (Luke 24:6)", question: { prompt: "What did Mary find when she arrived at the tomb?", options: ["The heavy stone was rolled away!", "The entrance was bricked shut", "A iron gate", "A sleeping lion"], correctAnswer: "The heavy stone was rolled away!", explanation: "God's power rolled away the massive stone!" } }
     ]
   },
   {
@@ -107,9 +119,9 @@ const DEFAULT_STORIES = [
     verse: "Psalm 28:7", translationClassic: "The LORD is my strength and my shield; in him my heart trusts. (Psalm 28:7 ESV)",
     translationKids: "The Lord gives me strength and protects me like a shield. (Psalm 28:7 ICB)",
     xPercent: 82, yPercent: 60, stars: 0, era: "Old Testament", mapIcon: "shield",
-    youtubeId: "32_Izk21ktw", durationSeconds: 160,
+    youtubeId: "32_Izk21ktw", durationSeconds: 1500,
     checkpoints: [
-      { id: "cp-d-1", timeSeconds: 30, title: "Five Smooth Stones", verseSnippet: "David said to the Philistine, 'You come against me with sword and spear, but I come against you in the name of the Lord.' (1 Samuel 17:45)", question: { prompt: "What weapon did David trust God with?", options: ["A sling and 5 smooth stones", "A heavy iron sword", "A golden spear", "A wooden bow"], correctAnswer: "A sling and 5 smooth stones", explanation: "David defeated Goliath with faith in God!" } }
+      { id: "cp-d-1", timePercent: 45, title: "Five Smooth Stones", verseSnippet: "David said to the Philistine, 'You come against me with sword and spear, but I come against you in the name of the Lord.' (1 Samuel 17:45)", question: { prompt: "What weapon did David trust God with?", options: ["A sling and 5 smooth stones", "A heavy iron sword", "A golden spear", "A wooden bow"], correctAnswer: "A sling and 5 smooth stones", explanation: "David defeated Goliath with faith in God!" } }
     ]
   }
 ];
@@ -123,20 +135,18 @@ export const AppProvider = ({ children }) => {
   const [activeChildId, setActiveChildId] = useState(null);
   const [curatedVideos, setCuratedVideos] = useState([]);
   const [stories, setStories] = useState(DEFAULT_STORIES);
+  const [memoryStoryId, setMemoryStoryIdState] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [verseOfDay, setVerseOfDay] = useState(null); // YouVersion Verse of Day
   const [achievements, setAchievements] = useState([]);
 
-  // ── Fetch YouVersion Verse of the Day ──
-  const fetchVerseOfDay = useCallback(async () => {
-    try {
-      const res = await fetch("/api/youversion/verse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
-      if (res.ok) {
-        const data = await res.json();
-        setVerseOfDay(data);
-      }
-    } catch (e) { /* silent */ }
-  }, []);
+  const memoryStory = pickMemoryStory(stories, memoryStoryId);
+
+  const setMemoryStoryId = (id) => {
+    setMemoryStoryIdState(id);
+    if (parent?.id) {
+      localStorage.setItem(`btb_memory_story_${parent.id}`, id);
+    }
+  };
 
   // ── Load user profile from Supabase or localStorage ──
   const loadUserData = useCallback(async (authUser) => {
@@ -156,6 +166,8 @@ export const AppProvider = ({ children }) => {
           setCuratedVideos(videos.map(normalizeCuratedVideo));
           const ach = JSON.parse(localStorage.getItem(`btb_achievements_${p.id}`) || "[]");
           setAchievements(ach);
+          const savedMemoryStory = localStorage.getItem(`btb_memory_story_${p.id}`);
+          if (savedMemoryStory) setMemoryStoryIdState(savedMemoryStory);
         }
       } catch (e) { /* silent */ }
       return;
@@ -192,6 +204,9 @@ export const AppProvider = ({ children }) => {
 
     setParent(parentProfile);
     localStorage.setItem("btb_parent", JSON.stringify(parentProfile));
+
+    const savedMemoryStory = localStorage.getItem(`btb_memory_story_${authUser.id}`);
+    if (savedMemoryStory) setMemoryStoryIdState(savedMemoryStory);
 
     if (!supabase) return;
 
@@ -245,7 +260,6 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       setIsLoading(true);
-      fetchVerseOfDay();
 
       if (supabase) {
         const { data: { session } } = await supabase.auth.getSession();
@@ -263,7 +277,7 @@ export const AppProvider = ({ children }) => {
       }
     };
     init();
-  }, [loadUserData, fetchVerseOfDay]);
+  }, [loadUserData]);
 
   // ── Auth: Sign Up with email/password ──
   const handleSignUp = async (email, password) => {
@@ -379,6 +393,33 @@ export const AppProvider = ({ children }) => {
   const selectActiveChild = (id) => {
     setActiveChildId(id);
     if (parent) localStorage.setItem(`btb_active_child_${parent.id}`, id);
+  };
+
+  const deleteChildProfile = async (childId) => {
+    if (!parent) throw new Error("Not logged in");
+
+    if (supabase && user) {
+      const { error } = await supabase
+        .from("child_profiles")
+        .delete()
+        .eq("id", childId)
+        .eq("parent_id", parent.id);
+      if (error) throw error;
+    }
+
+    const remaining = kidsProfiles.filter((k) => k.id !== childId);
+    setKidsProfiles(remaining);
+    localStorage.setItem(`btb_kids_${parent.id}`, JSON.stringify(remaining));
+
+    if (activeChildId === childId) {
+      const nextId = remaining[0]?.id || null;
+      setActiveChildId(nextId);
+      if (nextId) {
+        localStorage.setItem(`btb_active_child_${parent.id}`, nextId);
+      } else {
+        localStorage.removeItem(`btb_active_child_${parent.id}`);
+      }
+    }
   };
 
   const getActiveChild = () => kidsProfiles.find(k => k.id === activeChildId) || null;
@@ -658,8 +699,9 @@ export const AppProvider = ({ children }) => {
       user, parent, isLoading,
       // Child data
       kidsProfiles, activeChildId, activeChild: getActiveChild(),
+      memoryStoryId, memoryStory, setMemoryStoryId,
       // Content
-      curatedVideos, stories, verseOfDay, achievements,
+      curatedVideos, stories, achievements,
       // Auth actions
       signUp: handleSignUp,
       signIn: handleSignIn,
@@ -668,6 +710,7 @@ export const AppProvider = ({ children }) => {
       signOut: handleSignOut,
       // Child actions
       addChild: addChildProfile,
+      deleteChild: deleteChildProfile,
       selectChild: selectActiveChild,
       // Content actions
       addCuratedVideo,

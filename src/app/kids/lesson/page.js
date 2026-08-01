@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, Suspense } from "react
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import YouTubeQuestPlayer from "@/components/YouTubeQuestPlayer";
+import { resolveCheckpointsForPlayback } from "@/lib/checkpoints";
 
 // ── Color tokens matching the Stained Glass Sparkle design system ──
 const C = {
@@ -68,6 +69,7 @@ function LessonContent() {
   const [liveVerseClassic, setLiveVerseClassic] = useState("");
   const [verseApiSource, setVerseApiSource] = useState("");
   const [videoDuration, setVideoDuration] = useState(180);
+  const [resolvedCheckpoints, setResolvedCheckpoints] = useState([]);
 
   const playerApiRef = useRef(null);
   const triggeredCheckpointsRef = useRef(new Set());
@@ -95,6 +97,14 @@ function LessonContent() {
       playerApiRef.current = null;
     }
   }, [storyId, isCuratedParam, stories, curatedVideos]);
+
+  // Re-resolve checkpoint times when we know the real video duration
+  useEffect(() => {
+    const duration = videoDuration || activeVideo?.durationSeconds || 180;
+    setResolvedCheckpoints(
+      resolveCheckpointsForPlayback(activeVideo?.checkpoints || [], duration)
+    );
+  }, [activeVideo, videoDuration]);
 
   // Live scripture from YouVersion Platform API
   useEffect(() => {
@@ -128,7 +138,7 @@ function LessonContent() {
     setCurrentTime(sec);
     if (activeCheckpointRef.current) return;
 
-    const cps = activeVideo.checkpoints || [];
+    const cps = resolvedCheckpoints.length ? resolvedCheckpoints : (activeVideo.checkpoints || []);
     for (const cp of cps) {
       if (completedCheckpointsRef.current.includes(cp.id)) continue;
       if (triggeredCheckpointsRef.current.has(cp.id)) continue;
@@ -141,7 +151,7 @@ function LessonContent() {
         break;
       }
     }
-  }, [activeVideo, playSquish]);
+  }, [activeVideo, resolvedCheckpoints, playSquish]);
 
   const handlePlayerReady = useCallback((api) => {
     playerApiRef.current = api;
@@ -288,7 +298,9 @@ function LessonContent() {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  const checkpoints = activeVideo.checkpoints || [];
+  const checkpoints = resolvedCheckpoints.length
+    ? resolvedCheckpoints
+    : (activeVideo.checkpoints || []);
   const duration = videoDuration || activeVideo.durationSeconds || 180;
   const progressPercent = Math.min((currentTime / duration) * 100, 100);
 

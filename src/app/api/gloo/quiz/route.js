@@ -1,26 +1,44 @@
 import { NextResponse } from "next/server";
 import { glooChatCompletion, isGlooConfigured } from "@/lib/gloo/client";
+import { normalizeCheckpoints, computeIdealCheckpointCount } from "@/lib/checkpoints";
 
 /**
  * POST /api/gloo/quiz
  * Gloo AI Studio (faith-grounded) quiz generation; Gemini fallback.
  */
 export async function POST(request) {
-  const { topic, verseRef, storyTitle, ageGroup = "kids", videoSummary } = await request.json();
+  const {
+    topic,
+    verseRef,
+    storyTitle,
+    ageGroup = "kids",
+    videoSummary,
+    durationSeconds = 600,
+    keyMoments = [],
+  } = await request.json();
 
   if (!topic && !storyTitle) {
     return NextResponse.json({ error: "topic or storyTitle required" }, { status: 400 });
   }
 
   const geminiKey = process.env.GEMINI_API_KEY;
-  const prompt = buildQuizPrompt(topic || storyTitle, verseRef, ageGroup, videoSummary);
+  const checkpointCount = computeIdealCheckpointCount(durationSeconds);
+  const prompt = buildQuizPrompt({
+    topic: topic || storyTitle,
+    verseRef,
+    ageGroup,
+    videoSummary,
+    durationSeconds,
+    keyMoments,
+    checkpointCount,
+  });
 
   if (isGlooConfigured()) {
     try {
       const { content, model } = await glooChatCompletion({
         model_family: "google",
         temperature: 0.7,
-        max_tokens: 1024,
+        max_tokens: 2048,
         system:
           "You are a children's Christian education expert. All responses must be theologically sound, age-appropriate, and grounded in Scripture. Always respond with valid JSON only.",
         messages: [{ role: "user", content: prompt }],
@@ -28,7 +46,8 @@ export async function POST(request) {
 
       if (content) {
         const quiz = JSON.parse(content);
-        return NextResponse.json({ ...quiz, source: "gloo", model: model || "google (via Gloo)" });
+        const checkpoints = normalizeCheckpoints(quiz.checkpoints || [], durationSeconds, { keyMoments });
+        return NextResponse.json({ ...quiz, checkpoints, source: "gloo", model: model || "google (via Gloo)" });
       }
     } catch (err) {
       console.warn("Gloo AI error, falling back to Gemini:", err.message);
@@ -54,7 +73,8 @@ export async function POST(request) {
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
           const quiz = JSON.parse(text.trim());
-          return NextResponse.json({ ...quiz, source: "gemini", model: "gemini-2.5-flash" });
+          const checkpoints = normalizeCheckpoints(quiz.checkpoints || [], durationSeconds, { keyMoments });
+          return NextResponse.json({ ...quiz, checkpoints, source: "gemini", model: "gemini-2.5-flash" });
         }
       }
     } catch (err) {
@@ -62,10 +82,11 @@ export async function POST(request) {
     }
   }
 
-  return NextResponse.json(getStaticFallback(topic || storyTitle));
+  const fallback = getStaticFallback(topic || storyTitle, durationSeconds);
+  return NextResponse.json(fallback);
 }
 
-function buildQuizPrompt(topic, verseRef, ageGroup, videoSummary) {
+function buildQuizPrompt({ topic, verseRef, ageGroup, videoSummary, durationSeconds, keyMoments, checkpointCount }) {
   const ageInstruction =
     ageGroup === "little"
       ? "very simple language for ages 3-5, one syllable answers"
@@ -73,11 +94,32 @@ function buildQuizPrompt(topic, verseRef, ageGroup, videoSummary) {
         ? "deeper theological concepts for ages 11-14"
         : "fun, engaging language for ages 6-10";
 
+  const durationMin = Math.round(durationSeconds / 60);
   const summaryBlock = videoSummary
-    ? `\nVideo content summary: "${videoSummary}"\nBase questions on specific events from this video.`
+    ? `\nVideo content summary: "${videoSummary}"\nBase each question on a specific scene from this video.`
     : "";
 
-  return `Generate 3 interactive Bible quiz checkpoints for a children's video about: "${topic}"${verseRef ? `, scripture reference: ${verseRef}` : ""}.${summaryBlock}
+  const momentsBlock = keyMoments?.length
+    ? `\nKey video moments (align one checkpoint per moment, in order):\n${keyMoments
+        .map((m, i) => {
+          if (typeof m === "object") {
+            return `${i + 1}. ${m.timestamp || m.time || "??:??"} — ${m.label || m.description || ""}`;
+          }
+          return `${i + 1}. ${m}`;
+        })
+        .join("\n")}`
+    : "";
+
+  return `Generate exactly ${checkpointCount} interactive Bible quiz checkpoints for a children's video about: "${topic}"${verseRef ? `, scripture reference: ${verseRef}` : ""}.${summaryBlock}${momentsBlock}
+
+The full video is approximately ${durationMin} minutes (${durationSeconds} seconds).
+
+Rules:
+- Each checkpoint must match a meaningful story moment AFTER the child has watched that part.
+- Use "momentIndex" (0-based) to link each checkpoint to the key moment it belongs to.
+- Do NOT cluster checkpoints in the first 2 minutes — spread them across the full video.
+- Include "timeSeconds" as your best estimate for when to pause (MM:SS converted to seconds).
+- Each question needs exactly 4 options with one clear correctAnswer.
 
 Use ${ageInstruction}.
 
@@ -86,51 +128,27 @@ Return ONLY this JSON structure (no markdown, no extra text):
   "checkpoints": [
     {
       "id": "cp-1",
-      "timeSeconds": 30,
-      "title": "Checkpoint title",
+      "momentIndex": 0,
+      "timeSeconds": 270,
+      "title": "Checkpoint title tied to a scene",
       "verseSnippet": "Short scripture quote",
       "question": {
-        "prompt": "Fun question about the story?",
+        "prompt": "Fun question about what just happened?",
         "options": ["Correct biblical answer", "Wrong answer 1", "Wrong answer 2", "Wrong answer 3"],
         "correctAnswer": "Correct biblical answer",
         "explanation": "Short encouraging explanation with biblical grounding."
-      }
-    },
-    {
-      "id": "cp-2",
-      "timeSeconds": 75,
-      "title": "Second checkpoint title",
-      "verseSnippet": "Another scripture quote",
-      "question": {
-        "prompt": "Another engaging question?",
-        "options": ["Option A", "Option B", "Option C", "Option D"],
-        "correctAnswer": "Option A",
-        "explanation": "Biblical explanation."
-      }
-    },
-    {
-      "id": "cp-3",
-      "timeSeconds": 120,
-      "title": "Final checkpoint title",
-      "verseSnippet": "Closing scripture",
-      "question": {
-        "prompt": "Final reflection question?",
-        "options": ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-        "correctAnswer": "Answer 1",
-        "explanation": "Faith application explanation."
       }
     }
   ]
 }`;
 }
 
-function getStaticFallback(topic) {
-  return {
-    source: "static",
-    checkpoints: [
+function getStaticFallback(topic, durationSeconds = 600) {
+  const checkpoints = normalizeCheckpoints(
+    [
       {
         id: "cp-static-1",
-        timeSeconds: 30,
+        timePercent: 22,
         title: "Story Opening",
         verseSnippet: "For God so loved the world... (John 3:16)",
         question: {
@@ -142,13 +160,12 @@ function getStaticFallback(topic) {
             "Eating lots of food",
           ],
           correctAnswer: "Trusting God in tough times",
-          explanation:
-            "God wants us to trust Him in every situation, just like the heroes in His Word!",
+          explanation: "God wants us to trust Him in every situation, just like the heroes in His Word!",
         },
       },
       {
         id: "cp-static-2",
-        timeSeconds: 75,
+        timePercent: 50,
         title: "Middle Moment",
         verseSnippet: "I can do all things through Christ who strengthens me. (Philippians 4:13)",
         question: {
@@ -160,13 +177,12 @@ function getStaticFallback(topic) {
             "Sleeping all day",
           ],
           correctAnswer: "Jesus Christ gives us strength!",
-          explanation:
-            "Philippians 4:13 says we can do ALL things through Christ who gives us strength!",
+          explanation: "Philippians 4:13 says we can do ALL things through Christ who gives us strength!",
         },
       },
       {
         id: "cp-static-3",
-        timeSeconds: 120,
+        timePercent: 75,
         title: "Faith Application",
         verseSnippet: "The Lord is my shepherd, I shall not want. (Psalm 23:1)",
         question: {
@@ -178,10 +194,12 @@ function getStaticFallback(topic) {
             "Only helping ourselves",
           ],
           correctAnswer: "Being kind and sharing with friends",
-          explanation:
-            "Jesus said the greatest commandment is to love God and love others as ourselves!",
+          explanation: "Jesus said the greatest commandment is to love God and love others as ourselves!",
         },
       },
     ],
-  };
+    durationSeconds
+  );
+
+  return { source: "static", checkpoints };
 }

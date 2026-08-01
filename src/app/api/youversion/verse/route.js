@@ -68,9 +68,15 @@ function getFallbackVerse(reference, translation) {
 
 /**
  * GET /api/youversion/verse?reference=John+3:16&translation=ICB
+ * GET /api/youversion/verse?votd=1 — Verse of the Day (live YouVersion calendar)
  */
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
+
+  if (searchParams.get("votd") === "1" || searchParams.get("votd") === "true") {
+    return handleVerseOfDayResponse();
+  }
+
   const reference = searchParams.get("reference") || "John 3:16";
   const translation = searchParams.get("translation") || "ICB";
 
@@ -85,6 +91,30 @@ export async function GET(request) {
 
   console.warn(`YouVersion API: falling back for ${reference}`);
   return NextResponse.json(getFallbackVerse(reference, translation));
+}
+
+function votdPayload(extra) {
+  const dateKey = new Date().toISOString().slice(0, 10);
+  return NextResponse.json({
+    ...extra,
+    isVerseOfDay: true,
+    dateKey,
+    fetchedAt: new Date().toISOString(),
+  });
+}
+
+async function handleVerseOfDayResponse() {
+  if (!getYouVersionConfig().appKey) {
+    return votdPayload(getFallbackVerse("John 3:16", "ICB"));
+  }
+
+  const votd = await fetchVerseOfDay("ICB");
+  if (votd?.text) {
+    return votdPayload(votd);
+  }
+
+  console.warn("YouVersion VOTD: falling back to John 3:16 ICB");
+  return votdPayload(getFallbackVerse("John 3:16", "ICB"));
 }
 
 /**
@@ -114,11 +144,5 @@ export async function POST(request) {
     return NextResponse.json(getFallbackVerse(reference, translation));
   }
 
-  const votd = await fetchVerseOfDay("ICB");
-  if (votd?.text) {
-    return NextResponse.json(votd);
-  }
-
-  console.warn("YouVersion VOTD: falling back to John 3:16 ICB");
-  return NextResponse.json(getFallbackVerse("John 3:16", "ICB"));
+  return handleVerseOfDayResponse();
 }

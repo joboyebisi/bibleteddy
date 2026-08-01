@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { normalizeCheckpoints } from "@/lib/checkpoints";
+import { resolveVideoDuration } from "@/lib/youtube";
 
 /**
  * POST /api/curate
@@ -26,6 +28,8 @@ export async function POST(request) {
   let storyTitle = manualTopic || "Bible Story";
   let extractedVerse = "";
   let videoSummary = "";
+  let keyMoments = [];
+  let estimatedDurationSeconds = null;
 
   // Step 1: Gemini video understanding (YouTube URL input)
   if (geminiKey && fullYoutubeUrl) {
@@ -51,7 +55,7 @@ Watch and listen to this video carefully. Extract:
 1. The Bible story being told
 2. Key scripture references mentioned or implied
 3. Main moral/spiritual lesson for children ages 6-10
-4. 2-3 timestamp moments (MM:SS) where quiz questions would fit
+4. 3-5 timestamp moments (MM:SS) where a quiz should pause the video — spread across the full runtime, not clustered in the first 2 minutes
 
 Known Superbook episodes (use if this matches):
 - 8m9gSjV6o2Y = The First Christmas (Luke 2, Isaiah 9:6)
@@ -67,7 +71,12 @@ Return ONLY this JSON:
   "mainScripture": "Isaiah 9:6",
   "verseText": "For to us a child is born, to us a son is given.",
   "videoSummary": "2-3 sentence summary of what happens in the video",
-  "keyMoments": ["00:25 - Bethlehem stable scene", "01:05 - Wise men arrive"],
+  "estimatedDurationSeconds": 1500,
+  "keyMoments": [
+    { "timestamp": "04:30", "label": "Bethlehem stable scene" },
+    { "timestamp": "12:15", "label": "Wise men arrive" },
+    { "timestamp": "18:40", "label": "Angels announce good news" }
+  ],
   "badge": "Love",
   "era": "Gospels",
   "ageRecommendation": "all"
@@ -89,6 +98,8 @@ Return ONLY this JSON:
           topic = extracted.topic || topic;
           extractedVerse = extracted.mainScripture || "";
           videoSummary = extracted.videoSummary || "";
+          keyMoments = extracted.keyMoments || [];
+          estimatedDurationSeconds = extracted.estimatedDurationSeconds || null;
         }
       } else {
         const errBody = await extractRes.text();
@@ -109,6 +120,8 @@ Return ONLY this JSON:
 
   if (!topic) topic = manualTopic || "Faith and courage";
 
+  const durationSeconds = await resolveVideoDuration(youtubeId, estimatedDurationSeconds);
+
   // Step 2: Generate quiz checkpoints via Gloo (or Gemini fallback)
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
@@ -121,10 +134,15 @@ Return ONLY this JSON:
         verseRef: extractedVerse,
         storyTitle,
         videoSummary,
+        durationSeconds,
+        keyMoments,
       }),
     });
 
     const quizData = await quizRes.json();
+    const checkpoints = normalizeCheckpoints(quizData.checkpoints || [], durationSeconds, {
+      keyMoments,
+    });
 
     return NextResponse.json({
       story: {
@@ -134,7 +152,9 @@ Return ONLY this JSON:
         youtubeId,
         thumbnailUrl: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null,
         verse: extractedVerse,
-        checkpoints: quizData.checkpoints || [],
+        durationSeconds,
+        checkpoints,
+        keyMoments,
         source: quizData.source,
         geminiAnalyzed: !!videoSummary,
       },

@@ -3,38 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
-
-// YouVersion-style weekly memory verses
-const MEMORY_VERSES = [
-  {
-    id: "gen11",
-    reference: "Genesis 1:1",
-    translation: "ICB",
-    text: "In the beginning, God created the sky and the earth.",
-    hint: "Think about how everything started with God's voice!"
-  },
-  {
-    id: "ps231",
-    reference: "Psalm 23:1",
-    translation: "ICB",
-    text: "The Lord is my shepherd. I have everything I need.",
-    hint: "Think of a loving shepherd protecting his little sheep."
-  },
-  {
-    id: "john316",
-    reference: "John 3:16",
-    translation: "ESV",
-    text: "For God so loved the world, that he gave his only Son.",
-    hint: "God's greatest gift of love sent down to earth."
-  },
-  {
-    id: "phil413",
-    reference: "Philippians 4:13",
-    translation: "ICB",
-    text: "I can do all things through Christ because he gives me strength.",
-    hint: "Where does your strength and courage come from?"
-  }
-];
+import { fetchStoryVerseFromYouVersion, storyToMemoryVerse } from "@/lib/storyMemoryVerse";
+import VerseOfDayCard from "@/components/VerseOfDayCard";
 
 const TRIVIA_QUESTIONS = [
   {
@@ -62,16 +32,16 @@ const TRIVIA_QUESTIONS = [
 
 export default function KidsAdventurePage() {
   const router = useRouter();
-  const { stories, curatedVideos, activeChild, verseOfDay, playSquish, playSuccess, addSeeds, logVerseCompletion } = useApp();
+  const { stories, curatedVideos, activeChild, memoryStory, setMemoryStoryId, playSquish, playSuccess, addSeeds, logVerseCompletion } = useApp();
 
-  // Adventure Map Active Pin
-  const [selectedNode, setSelectedNode] = useState(stories[0]);
+  // Adventure Map Active Pin — also drives the memory verse to master
+  const [selectedNode, setSelectedNode] = useState(memoryStory || stories[0]);
 
   // Voice & Trivia Arena Tab
   const [activeQuizMode, setActiveQuizMode] = useState("voice");
-  const [selectedVerse, setSelectedVerse] = useState(MEMORY_VERSES[0]);
   const [liveVerseText, setLiveVerseText] = useState("");
   const [liveVerseSource, setLiveVerseSource] = useState("");
+  const [liveVerseReference, setLiveVerseReference] = useState("");
 
   // Voice state
   const [isListeningMic, setIsListeningMic] = useState(false);
@@ -86,22 +56,29 @@ export default function KidsAdventurePage() {
 
   const currentQ = TRIVIA_QUESTIONS[currentTriviaIdx];
 
-  // Fetch live verse from YouVersion API when verse selection changes
   useEffect(() => {
-    const fetchVerse = async () => {
-      try {
-        const res = await fetch(`/api/youversion/verse?reference=${encodeURIComponent(selectedVerse.reference)}&translation=${selectedVerse.translation}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.text) {
-            setLiveVerseText(data.text);
-            setLiveVerseSource(data.source || "");
-          }
-        }
-      } catch { /* use static fallback */ }
-    };
-    fetchVerse();
-  }, [selectedVerse]);
+    if (memoryStory) setSelectedNode(memoryStory);
+  }, [memoryStory?.id]);
+
+  const selectStoryNode = (node) => {
+    setSelectedNode(node);
+    setMemoryStoryId(node.id);
+    setVoiceResult(null);
+    setSpokenTranscript("");
+  };
+
+  // One story scripture from YouVersion — shared by map drawer + memory master
+  useEffect(() => {
+    if (!selectedNode?.verse) return;
+    let cancelled = false;
+    fetchStoryVerseFromYouVersion(selectedNode).then((data) => {
+      if (cancelled) return;
+      setLiveVerseText(data.text);
+      setLiveVerseSource(data.source || "");
+      setLiveVerseReference(data.reference || selectedNode.verse);
+    });
+    return () => { cancelled = true; };
+  }, [selectedNode?.id, selectedNode?.verse]);
 
   const handleWatchQuiz = (story) => {
     playSuccess();
@@ -112,7 +89,9 @@ export default function KidsAdventurePage() {
     playSquish();
     setVoiceResult(null);
     setSpokenTranscript("");
-    const verseText = liveVerseText || selectedVerse.text;
+    const memoryMeta = storyToMemoryVerse(selectedNode);
+    const verseText = liveVerseText || memoryMeta?.fallbackText || "";
+    const verseReference = liveVerseReference || selectedNode?.verse || "";
 
     const processResult = async (transcript) => {
       setIsListeningMic(false);
@@ -123,7 +102,7 @@ export default function KidsAdventurePage() {
         const res = await fetch("/api/gloo/voice-match", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ spokenText: transcript, targetVerse: verseText, verseReference: selectedVerse.reference })
+          body: JSON.stringify({ spokenText: transcript, targetVerse: verseText, verseReference })
         });
         const result = await res.json();
         setVerifyingVoice(false);
@@ -135,7 +114,7 @@ export default function KidsAdventurePage() {
           aiSource: result.source,
           aiModel: result.model,
         });
-        if (result.passed) { playSuccess(); addSeeds(20); logVerseCompletion?.(selectedVerse.reference, selectedVerse.translation, result.accuracyPercent, true, 20); }
+        if (result.passed) { playSuccess(); addSeeds(20); logVerseCompletion?.(verseReference, "ICB", result.accuracyPercent, true, 20); }
         else playSquish();
       } catch {
         setVerifyingVoice(false);
@@ -205,19 +184,6 @@ export default function KidsAdventurePage() {
           <p className="text-sm font-semibold max-w-xl leading-relaxed mb-4" style={{ color: "#705d00" }}>
             Welcome back, <span className="font-black">{activeChild?.name || "Explorer"}</span>! Travel through timeless Scripture stories, collect Golden Stars, and unlock heavenly Faith Badges!
           </p>
-          {verseOfDay?.text && (
-            <div className="mt-3 p-3 rounded-xl border text-sm font-medium max-w-xl"
-              style={{ background: "rgba(255,255,255,0.85)", borderColor: "rgba(255,102,0,0.3)", color: "#544600" }}>
-              <span className="font-black text-[#ff6600]">
-                YouVersion Verse of the Day — {verseOfDay.reference}
-                {verseOfDay.translation ? ` (${verseOfDay.translation})` : ""}
-              </span>
-              <p className="mt-1 italic">&ldquo;{verseOfDay.text}&rdquo;</p>
-              {verseOfDay.source === "youversion" && (
-                <p className="text-[10px] font-bold mt-1 text-[#0c6780]">Live from YouVersion Platform API</p>
-              )}
-            </div>
-          )}
           <div className="flex gap-2 flex-wrap mt-3">
             <span className="px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-1"
               style={{ background: "#705d00", color: "#ffd700" }}>
@@ -240,6 +206,9 @@ export default function KidsAdventurePage() {
           />
         </div>
       </section>
+
+      {/* ── VERSE OF THE DAY (YouVersion — updates daily) ── */}
+      <VerseOfDayCard />
 
       {/* ── 2. CONNECTED ADVENTURE MAP ── */}
       <section className="rounded-3xl border-2 overflow-hidden"
@@ -319,7 +288,7 @@ export default function KidsAdventurePage() {
                     <button
                       onClick={() => {
                         playSquish();
-                        if (!isLocked) setSelectedNode(node);
+                        if (!isLocked) selectStoryNode(node);
                         else alert(`Earn ${node.requiredBadges} badges to unlock ${node.title}!`);
                       }}
                       className={`relative flex flex-col items-center transition-all duration-300 ${isLocked ? "opacity-40 cursor-not-allowed" : "cursor-pointer hover:scale-110"}`}
@@ -413,20 +382,26 @@ export default function KidsAdventurePage() {
                 {selectedNode?.desc}
               </p>
 
-              {/* Scripture Box */}
+              {/* Scripture from active adventure — live via YouVersion */}
               <div className="rounded-2xl p-4 border relative" style={{ background: "#fffde7", borderColor: "#e9c400" }}>
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1" style={{ color: "#705d00" }}>
                     <span className="material-symbols-outlined text-xs">menu_book</span>
-                    Memory Scripture
+                    Story Memory Scripture
                   </span>
-                  <span className="text-[10px] font-bold" style={{ color: "#705d00" }}>ICB &amp; ESV</span>
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: liveVerseSource === "youversion" ? "#0c6780" : "#ffe16d",
+                      color: liveVerseSource === "youversion" ? "white" : "#544600",
+                    }}>
+                    {liveVerseSource === "youversion" ? "YouVersion ICB" : "Loading…"}
+                  </span>
                 </div>
                 <p className="text-xs font-black mb-1" style={{ color: "#3d3300" }}>
-                  {selectedNode?.verse}
+                  {liveVerseReference || selectedNode?.verse}
                 </p>
                 <p className="text-xs italic font-medium leading-snug" style={{ color: "#544600" }}>
-                  "{selectedNode?.translationKids}"
+                  &ldquo;{liveVerseText || selectedNode?.translationKids}&rdquo;
                 </p>
               </div>
 
@@ -461,12 +436,12 @@ export default function KidsAdventurePage() {
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black mb-1 border"
               style={{ background: "#ffe16d", color: "#544600", borderColor: "#e9c400" }}>
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>mic</span>
-              YouVersion Weekly Verse
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>menu_book</span>
+              Adventure Story Scripture
             </div>
             <h2 className="text-xl font-black" style={{ color: "#1b1c1a" }}>Master Memory Verses</h2>
             <p className="text-xs font-medium" style={{ color: "#4d4732" }}>
-              Recite this week's verse aloud with your mic, or test your Bible trivia knowledge!
+              Memorize the scripture from <strong>{selectedNode?.title?.replace(/^Superbook:\s*/i, "")}</strong> — tap a story on the map to switch adventures.
             </p>
           </div>
 
@@ -500,24 +475,7 @@ export default function KidsAdventurePage() {
           {activeQuizMode === "voice" && (
             <div className="space-y-5">
 
-              {/* Verse selector pills */}
-              <div className="flex flex-wrap items-center gap-2 select-none">
-                <span className="text-xs font-black uppercase tracking-wider" style={{ color: "#705d00" }}>Choose Verse:</span>
-                {MEMORY_VERSES.map((v) => (
-                  <button key={v.id}
-                    onClick={() => { playSquish(); setSelectedVerse(v); setSpokenTranscript(""); setVoiceResult(null); }}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer"
-                    style={v.id === selectedVerse.id
-                      ? { background: "#ffd700", color: "#3d3300", borderColor: "#e9c400", fontWeight: 900 }
-                      : { background: "#f5f3ef", color: "#4d4732", borderColor: "#e4e2de" }
-                    }
-                  >
-                    {v.reference} ({v.translation})
-                  </button>
-                ))}
-              </div>
-
-              {/* Target verse display */}
+              {/* Target verse display — same as adventure story scripture */}
               <div className="rounded-2xl p-6 text-center space-y-2 border-2 relative"
                 style={{ background: "#fffde7", borderColor: "#e9c400" }}>
                 <div className="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full border"
@@ -527,16 +485,21 @@ export default function KidsAdventurePage() {
                      borderColor: liveVerseSource === "youversion" ? "#0c6780" : "#e9c400",
                    }}>
                    {liveVerseSource === "youversion"
-                     ? `✓ YouVersion API (${selectedVerse.translation})`
-                     : "YouVersion API"}
+                     ? "YouVersion Story Scripture (ICB)"
+                     : "YouVersion Story Scripture"}
                 </div>
-                <h3 className="text-xl font-black" style={{ color: "#3d3300" }}>{selectedVerse.reference}</h3>
+                <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: "#705d00" }}>
+                  {selectedNode?.title}
+                </p>
+                <h3 className="text-xl font-black" style={{ color: "#3d3300" }}>{liveVerseReference || selectedNode?.verse}</h3>
                 <p className="text-lg italic font-bold leading-relaxed max-w-xl mx-auto" style={{ color: "#544600" }}>
-                  "{liveVerseText || selectedVerse.text}"
+                  &ldquo;{liveVerseText || selectedNode?.translationKids}&rdquo;
                 </p>
-                <p className="text-xs font-bold" style={{ color: "#705d00" }}>
-                  💡 Clue: {selectedVerse.hint}
-                </p>
+                {storyToMemoryVerse(selectedNode)?.hint && (
+                  <p className="text-xs font-bold" style={{ color: "#705d00" }}>
+                    💡 {storyToMemoryVerse(selectedNode).hint}
+                  </p>
+                )}
               </div>
 
               {/* Mic button stage */}
