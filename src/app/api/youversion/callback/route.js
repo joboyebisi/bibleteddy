@@ -3,9 +3,29 @@ import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 import { getYouVersionConfig } from "@/lib/youversion/config";
 
+const OAUTH_COOKIE_NAMES = [
+  "yv_code_verifier",
+  "yv_oauth_state",
+  "yv_oauth_nonce",
+  "yv_oauth_next",
+  "yv_redirect_uri",
+  "yv_user_email",
+  "yv_user_name",
+  "yv_yvp_id",
+  "yv_profile_picture",
+];
+
+function clearOAuthCookies(cookieStore) {
+  for (const name of OAUTH_COOKIE_NAMES) {
+    cookieStore.delete(name);
+  }
+}
+
 /**
  * GET /api/youversion/callback
- * Handles YouVersion OAuth redirect (Auth Call 2 + 3), links/creates Supabase user
+ * YouVersion OAuth — two browser hops:
+ *   1) yvp_id + user info → redirect browser to YouVersion /auth/callback
+ *   2) code + state → exchange for tokens, create Supabase session
  */
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
@@ -21,6 +41,7 @@ export async function GET(request) {
 
   const error = searchParams.get("error");
   if (error) {
+    clearOAuthCookies(cookieStore);
     const hint =
       error === "invalid_request"
         ? ` Register this callback at platform.youversion.com: ${redirectUri}`
@@ -30,31 +51,41 @@ export async function GET(request) {
     );
   }
 
-  // Clear OAuth cookies
-  ["yv_code_verifier", "yv_oauth_state", "yv_oauth_nonce", "yv_oauth_next", "yv_redirect_uri"].forEach((name) => {
-    cookieStore.delete(name);
-  });
-
   const returnedState = searchParams.get("state");
   if (!storedState || !returnedState || storedState !== returnedState) {
+    clearOAuthCookies(cookieStore);
     return NextResponse.redirect(`${origin}/onboarding/signup?error=invalid_state`);
   }
 
   if (!codeVerifier || !appKey) {
+    clearOAuthCookies(cookieStore);
     return NextResponse.redirect(`${origin}/onboarding/signup?error=oauth_config`);
   }
 
-  // Step 2: If we received user info directly (first redirect from YouVersion)
+  const authCode = searchParams.get("code");
   const yvpId = searchParams.get("yvp_id");
-  const userEmail = searchParams.get("user_email");
-  const userName = searchParams.get("user_name");
-  const profilePicture = searchParams.get("profile_picture");
-
-  let authCode = searchParams.get("code");
+  const userEmail = searchParams.get("user_email") || cookieStore.get("yv_user_email")?.value;
+  const userName = searchParams.get("user_name") || cookieStore.get("yv_user_name")?.value;
+  const profilePicture =
+    searchParams.get("profile_picture") || cookieStore.get("yv_profile_picture")?.value;
+  const youversionUserId = yvpId || cookieStore.get("yv_yvp_id")?.value;
 
   try {
-    // Auth Call 2: Exchange user info for authorization code (if not already present)
+    // ── Hop 1: YouVersion returned user info — browser must hit /auth/callback ──
     if (!authCode && yvpId) {
+      const cookieOpts = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 600,
+        path: "/",
+      };
+
+      if (userEmail) cookieStore.set("yv_user_email", userEmail, cookieOpts);
+      if (userName) cookieStore.set("yv_user_name", userName, cookieOpts);
+      if (youversionUserId) cookieStore.set("yv_yvp_id", youversionUserId, cookieOpts);
+      if (profilePicture) cookieStore.set("yv_profile_picture", profilePicture, cookieOpts);
+
       const callbackParams = new URLSearchParams({
         state: returnedState,
         yvp_id: yvpId,
@@ -63,23 +94,17 @@ export async function GET(request) {
         profile_picture: profilePicture || "",
       });
 
-      const callbackRes = await fetch(`${authBase}/callback?${callbackParams.toString()}`, {
-        redirect: "manual",
-      });
-
-      const location = callbackRes.headers.get("location");
-      if (location) {
-        const locUrl = new URL(location, origin);
-        authCode = locUrl.searchParams.get("code");
-      }
+      // Auth Call 2: browser redirect (server-side fetch does not receive the code)
+      return NextResponse.redirect(`${authBase}/callback?${callbackParams.toString()}`);
     }
 
+    // ── Hop 2: authorization code received — exchange for tokens ──
     if (!authCode) {
-      console.error("YouVersion: no authorization code received");
+      console.error("YouVersion callback missing code and yvp_id", Object.fromEntries(searchParams));
+      clearOAuthCookies(cookieStore);
       return NextResponse.redirect(`${origin}/onboarding/signup?error=no_auth_code`);
     }
 
-    // Auth Call 3: Exchange code for tokens
     const tokenBody = new URLSearchParams({
       grant_type: "authorization_code",
       code: authCode,
@@ -97,15 +122,18 @@ export async function GET(request) {
     if (!tokenRes.ok) {
       const errText = await tokenRes.text();
       console.error("YouVersion token exchange failed:", tokenRes.status, errText);
+      clearOAuthCookies(cookieStore);
       return NextResponse.redirect(`${origin}/onboarding/signup?error=token_exchange_failed`);
     }
+
+    clearOAuthCookies(cookieStore);
 
     const tokens = await tokenRes.json();
     const userInfo = decodeJwtPayload(tokens.id_token || tokens.access_token) || {};
 
     const email = userEmail || userInfo.email;
     const displayName = userName || userInfo.name || email?.split("@")[0] || "Parent";
-    const youversionUserId = yvpId || userInfo.yvp_id || userInfo.sub;
+    const finalYvpId = youversionUserId || userInfo.yvp_id || userInfo.sub;
 
     if (!email) {
       return NextResponse.redirect(`${origin}/onboarding/signup?error=no_email`);
@@ -115,12 +143,11 @@ export async function GET(request) {
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !serviceKey) {
-      // Demo mode: redirect with YouVersion info in query (localStorage pickup)
       const demoParams = new URLSearchParams({
         yv_linked: "1",
         yv_email: email,
         yv_name: displayName,
-        yv_id: youversionUserId || "",
+        yv_id: finalYvpId || "",
       });
       return NextResponse.redirect(`${origin}${next}?${demoParams.toString()}`);
     }
@@ -129,7 +156,6 @@ export async function GET(request) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Create Supabase user if new, or continue if email already registered
     const tempPassword = `${crypto.randomUUID()}${crypto.randomUUID()}`;
     const { data: createData, error: createError } = await supabase.auth.admin.createUser({
       email,
@@ -138,7 +164,7 @@ export async function GET(request) {
       user_metadata: {
         full_name: displayName,
         avatar_url: profilePicture || userInfo.profile_picture,
-        youversion_user_id: youversionUserId,
+        youversion_user_id: finalYvpId,
       },
     });
 
@@ -153,7 +179,6 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/onboarding/signup?error=account_create_failed`);
     }
 
-    // Resolve user id for profile upsert (new user or existing email)
     let profileUserId = authUser?.id;
     if (!profileUserId) {
       const { data: linkCheck } = await supabase.auth.admin.generateLink({
@@ -169,7 +194,7 @@ export async function GET(request) {
           id: profileUserId,
           email,
           display_name: displayName,
-          youversion_user_id: youversionUserId,
+          youversion_user_id: finalYvpId,
           youversion_access_token: tokens.access_token,
           youversion_refresh_token: tokens.refresh_token,
           updated_at: new Date().toISOString(),
@@ -178,7 +203,6 @@ export async function GET(request) {
       );
     }
 
-    // Generate magic link session for the user
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email,
@@ -190,12 +214,12 @@ export async function GET(request) {
       return NextResponse.redirect(`${origin}/onboarding/signup?error=session_failed`);
     }
 
-    // Redirect through Supabase verify to establish session
     const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${linkData.properties.hashed_token}&type=magiclink&redirect_to=${encodeURIComponent(`${origin}/api/auth/callback?next=${encodeURIComponent(next)}`)}`;
 
     return NextResponse.redirect(verifyUrl);
   } catch (err) {
     console.error("YouVersion callback error:", err);
+    clearOAuthCookies(cookieStore);
     return NextResponse.redirect(`${origin}/onboarding/signup?error=server_error`);
   }
 }
