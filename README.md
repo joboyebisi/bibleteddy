@@ -139,7 +139,8 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
 # App URL
-NEXT_PUBLIC_SITE_URL=https://your-vercel-url.vercel.app
+NEXT_PUBLIC_SITE_URL=https://bibleteddy.vercel.app
+YOUVERSION_REDIRECT_URI=https://bibleteddy.vercel.app/api/youversion/callback
 ```
 
 ### 3. Set Up the Database
@@ -167,9 +168,9 @@ This creates:
 
 ### 5. Configure YouVersion OAuth (Sign in with YouVersion)
 1. Register your app at [platform.youversion.com](https://platform.youversion.com)
-2. Set the **callback URL** to match `YOUVERSION_REDIRECT_URI`:
-   - Local: `http://localhost:3000/api/youversion/callback`
-   - Production: `https://your-domain.vercel.app/api/youversion/callback`
+2. Set the **callback URL** in the YouVersion Platform Portal:
+   - Production: `https://bibleteddy.vercel.app/api/youversion/callback`
+   - Local dev: `http://localhost:3000/api/youversion/callback`
 3. Copy your **App Key** into `YOUVERSION_APP_KEY` in `.env.local`
 4. Run the updated schema in Supabase (adds `youversion_refresh_token` column if missing):
 ```sql
@@ -207,7 +208,8 @@ vercel --prod
 3. **Add Environment Variables in Vercel:**
    - Go to your Vercel project → Settings → Environment Variables
    - Add all variables from `.env.local` (without the `#` comments)
-   - Set `NEXT_PUBLIC_SITE_URL` to your Vercel deployment URL (e.g. `https://bibleteddy.vercel.app`)
+   - Set `NEXT_PUBLIC_SITE_URL` to `https://bibleteddy.vercel.app`
+   - Set `YOUVERSION_REDIRECT_URI` to `https://bibleteddy.vercel.app/api/youversion/callback`
 
 4. **Update Supabase Auth redirect URLs:**
    - Supabase Dashboard → Authentication → URL Configuration

@@ -111,7 +111,8 @@ Return ONLY this JSON:
 
   // Step 2: Generate quiz checkpoints via Gloo (or Gemini fallback)
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
     const quizRes = await fetch(`${baseUrl}/api/gloo/quiz`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
