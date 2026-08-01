@@ -1,20 +1,8 @@
-/**
- * Canonical site URL — env vars always win over request origin so OAuth
- * never redirects to localhost after a production login.
- */
-export function getSiteUrl(fallbackOrigin) {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
-  }
-  if (fallbackOrigin) {
-    return fallbackOrigin.replace(/\/$/, "");
-  }
-  return "http://localhost:3000";
-}
+import { getSiteUrl } from "@/lib/siteUrl";
 
+/**
+ * @param {string} [fallbackOrigin]
+ */
 export function getYouVersionConfig(fallbackOrigin) {
   const appKey =
     process.env.YOUVERSION_APP_KEY ||

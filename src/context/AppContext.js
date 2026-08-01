@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { authCallbackUrl } from "@/lib/siteUrl";
 import { supabase } from "@/lib/supabaseClient";
 import confetti from "canvas-confetti";
 
@@ -248,7 +249,7 @@ export const AppProvider = ({ children }) => {
     if (supabase) {
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/onboarding/child` }
+        options: { emailRedirectTo: authCallbackUrl("/onboarding/child") }
       });
       setIsLoading(false);
       if (error) throw error;
@@ -297,7 +298,7 @@ export const AppProvider = ({ children }) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback?next=/parent`,
+        redirectTo: authCallbackUrl("/parent"),
         queryParams: { access_type: "offline", prompt: "consent" }
       }
     });

@@ -181,7 +181,7 @@ async function completeLogin({
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email,
-    options: { redirectTo: `${siteUrl}/api/auth/callback?next=${encodeURIComponent(next)}` },
+    options: { redirectTo: `${siteUrl}/onboarding/auth/callback?next=${encodeURIComponent(next)}` },
   });
 
   if (linkError || !linkData?.properties?.hashed_token) {
@@ -189,7 +189,7 @@ async function completeLogin({
     return NextResponse.redirect(`${siteUrl}/onboarding/signup?error=session_failed`);
   }
 
-  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${linkData.properties.hashed_token}&type=magiclink&redirect_to=${encodeURIComponent(`${siteUrl}/api/auth/callback?next=${encodeURIComponent(next)}`)}`;
+  const verifyUrl = `${supabaseUrl}/auth/v1/verify?token=${linkData.properties.hashed_token}&type=magiclink&redirect_to=${encodeURIComponent(`${siteUrl}/onboarding/auth/callback?next=${encodeURIComponent(next)}`)}`;
 
   return NextResponse.redirect(verifyUrl);
 }
