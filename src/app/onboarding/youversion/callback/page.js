@@ -32,7 +32,7 @@ export default function YouVersionCallbackPage() {
     }
 
     if (url.searchParams.toString()) {
-      window.location.replace(`/api/youversion/callback?${url.searchParams.toString()}`);
+      window.location.replace(`/api/youversion/callback?${url.searchParams.toString()}${url.hash}`);
       return;
     }
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getSiteUrl } from "@/lib/siteUrl";
+import { authHashForwardHtml } from "@/lib/authHashForward";
 
 /**
  * GET /api/auth/callback
@@ -60,8 +61,8 @@ export async function GET(request) {
     }
   }
 
-  // Magic links put tokens in #hash — client page must handle those
-  const forward = new URLSearchParams(searchParams);
-  if (!forward.has("next")) forward.set("next", next);
-  return NextResponse.redirect(`${siteUrl}/onboarding/auth/callback?${forward.toString()}`);
+  // Magic links put tokens in #hash — HTTP redirects DROP the hash, so use HTML forward
+  return new NextResponse(authHashForwardHtml(), {
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
 }
